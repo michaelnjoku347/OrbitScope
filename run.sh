@@ -46,6 +46,12 @@ case "$command" in
   api)
     "$MVN" spring-boot:run
     ;;
+  web)
+    (cd web && npm install && npm run dev)
+    ;;
+  bench)
+    run_main orbitscope.Benchmark "${1:-20}"
+    ;;
   test)
     "$MVN" -q test
     ;;
@@ -61,6 +67,8 @@ case "$command" in
     echo "  positions   Milestone 3 — compute positions (add --all or --future PT90M)"
     echo "  future      Milestone 3 — ISS and a few Starlinks 90 minutes from now"
     echo "  api         Milestone 4 — start the Spring Boot JSON API on :8080"
+    echo "  web         Milestone 5 — Cesium globe at http://localhost:5173"
+    echo "  bench       Milestone 7 — CPU vs Kepler-kernel timing"
     echo "  test        run unit tests"
     ;;
 esac

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -77,11 +78,13 @@ public class CatalogService {
 
     public synchronized void loadSample() throws Exception {
         Path iss = Path.of(sampleTle);
-        Path starlink = Path.of("data/sample-starlink.tle");
         SatelliteCatalog loaded = TleParser.readFile(iss);
-        if (starlink.toFile().isFile()) {
-            for (Satellite satellite : TleParser.readFile(starlink).all()) {
-                loaded.add(satellite);
+        for (String extra : List.of("data/sample-starlink.tle", "data/sample-gps.tle")) {
+            Path path = Path.of(extra);
+            if (path.toFile().isFile()) {
+                for (Satellite satellite : TleParser.readFile(path).all()) {
+                    loaded.add(satellite);
+                }
             }
         }
         replace(loaded);

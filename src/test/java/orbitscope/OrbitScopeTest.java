@@ -54,5 +54,12 @@ class OrbitScopeTest {
         Satellite iss = catalog.findById(25544);
         assertEquals("ISS (ZARYA)", iss.getName().trim());
         assertTrue(iss.hasTle());
+        assertEquals("ISS", iss.getGroup());
+    }
+
+    @Test
+    void groupsStarlinkAndGps() throws Exception {
+        assertEquals("STARLINK", TleParser.readFile(Path.of("data/sample-starlink.tle")).all().get(0).getGroup());
+        assertEquals("GPS", TleParser.readFile(Path.of("data/sample-gps.tle")).all().get(0).getGroup());
     }
 }
