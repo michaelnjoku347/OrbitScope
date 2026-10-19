@@ -69,7 +69,7 @@ public class KeplerBatch {
         return n;
     }
 
-    public void propagate(double unixSeconds, float[] lat, float[] lon, float[] altKm, boolean parallel) {
+    public void propagate(double unixSeconds, double[] lat, double[] lon, double[] altKm, boolean parallel) {
         if (parallel) {
             IntStream.range(0, n).parallel().forEach(i -> {
                 stepOne(i, unixSeconds, lat, lon, altKm);
@@ -82,7 +82,7 @@ public class KeplerBatch {
     }
 
     // I translated this from wikipedia / a blog. probably missing a lot.
-    private void stepOne(int i, double unixSeconds, float[] lat, float[] lon, float[] altKm) {
+    private void stepOne(int i, double unixSeconds, double[] lat, double[] lon, double[] altKm) {
         double dt = unixSeconds - epochUnix[i];
         double m = meanAnomaly[i] + meanMotion[i] * dt;
         m = Math.IEEEremainder(m, 2 * Math.PI);
@@ -110,15 +110,15 @@ public class KeplerBatch {
         double ye = -sg * x + cg * y;
         double ze = z;
 
-        lon[i] = (float) Math.toDegrees(Math.atan2(ye, xe));
-        lat[i] = (float) Math.toDegrees(Math.atan2(ze, Math.sqrt(xe * xe + ye * ye)));
-        altKm[i] = (float) ((Math.sqrt(xe * xe + ye * ye + ze * ze) - RE) / 1000.0);
+        lon[i] = Math.toDegrees(Math.atan2(ye, xe));
+        lat[i] = Math.toDegrees(Math.atan2(ze, Math.sqrt(xe * xe + ye * ye)));
+        altKm[i] = (Math.sqrt(xe * xe + ye * ye + ze * ze) - RE) / 1000.0;
     }
 
     public void propagateSteps(double startUnix, double stepSeconds, int steps, boolean parallel) {
-        float[] lat = new float[n];
-        float[] lon = new float[n];
-        float[] alt = new float[n];
+        double[] lat = new double[n];
+        double[] lon = new double[n];
+        double[] alt = new double[n];
         for (int s = 0; s < steps; s++) {
             propagate(startUnix + s * stepSeconds, lat, lon, alt, parallel);
         }

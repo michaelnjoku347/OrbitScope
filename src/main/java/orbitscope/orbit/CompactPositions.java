@@ -7,9 +7,9 @@ public record CompactPositions(
         Instant time,
         int count,
         int[] ids,
-        float[] latitude,
-        float[] longitude,
-        float[] altitudeKm,
+        double[] latitude,
+        double[] longitude,
+        double[] altitudeKm,
         String[] group
 ) {
 }

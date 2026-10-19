@@ -78,9 +78,9 @@ public class PositionCalculator {
 
         int n = usable.size();
         int[] ids = new int[n];
-        float[] latitude = new float[n];
-        float[] longitude = new float[n];
-        float[] altitudeKm = new float[n];
+        double[] latitude = new double[n];
+        double[] longitude = new double[n];
+        double[] altitudeKm = new double[n];
         String[] group = new String[n];
         AbsoluteDate date = toAbsoluteDate(when);
 
@@ -102,9 +102,9 @@ public class PositionCalculator {
             Satellite satellite,
             AbsoluteDate date,
             int[] ids,
-            float[] latitude,
-            float[] longitude,
-            float[] altitudeKm,
+            double[] latitude,
+            double[] longitude,
+            double[] altitudeKm,
             String[] group,
             int i
     ) {
@@ -114,9 +114,9 @@ public class PositionCalculator {
             TLEPropagator propagator = propagatorFor(satellite);
             Vector3D xyz = propagator.propagate(date).getPosition(itrf);
             GeodeticPoint point = earth.transform(xyz, itrf, date);
-            latitude[i] = (float) Math.toDegrees(point.getLatitude());
-            longitude[i] = (float) Math.toDegrees(point.getLongitude());
-            altitudeKm[i] = (float) (point.getAltitude() / 1000.0);
+            latitude[i] = Math.toDegrees(point.getLatitude());
+            longitude[i] = Math.toDegrees(point.getLongitude());
+            altitudeKm[i] = point.getAltitude() / 1000.0;
         } catch (RuntimeException e) {
             // bad tle, leave 0 and the globe skips it
         }
