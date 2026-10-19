@@ -1,5 +1,7 @@
 package orbitscope;
 
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -7,10 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-/**
- * Milestone 2: fetch live TLE data from CelesTrak over HTTP
- * instead of reading a file you downloaded by hand.
- */
+@Component
 public class TleFetcher {
     public static final String STARLINK_TLE_URL =
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=starlink&FORMAT=tle";
@@ -20,6 +19,7 @@ public class TleFetcher {
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=gps-ops&FORMAT=tle";
     public static final int ISS_NORAD_ID = 25544;
 
+    // empty response without this
     private static final String USER_AGENT =
             "OrbitScope/0.1 (https://github.com/michaelnjoku347/OrbitScope)";
 
@@ -35,7 +35,6 @@ public class TleFetcher {
         return fetch(GPS_TLE_URL);
     }
 
-    /** ISS, GPS, then every live Starlink. Used by the API and the globe. */
     public String fetchCatalog() throws IOException, InterruptedException {
         return fetchIssTle() + "\n" + fetchGpsTles() + "\n" + fetchStarlinkTles();
     }

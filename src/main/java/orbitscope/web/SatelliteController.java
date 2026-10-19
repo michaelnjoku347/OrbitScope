@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class SatelliteController {
 
     @GetMapping("/api")
     public Map<String, Object> index() {
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("name", "OrbitScope");
         body.put("satelliteCount", catalog.catalog().size());
         body.put("updatedAt", catalog.updatedAt());
@@ -51,13 +51,13 @@ public class SatelliteController {
     public Map<String, Object> list() {
         List<Map<String, Object>> satellites = new ArrayList<>();
         for (Satellite satellite : catalog.catalog().all()) {
-            Map<String, Object> row = new LinkedHashMap<>();
+            Map<String, Object> row = new HashMap<>();
             row.put("id", satellite.getNoradId());
             row.put("name", satellite.getName());
             row.put("group", satellite.getGroup());
             satellites.add(row);
         }
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("count", satellites.size());
         body.put("updatedAt", catalog.updatedAt());
         body.put("satellites", satellites);
@@ -89,7 +89,7 @@ public class SatelliteController {
                 observer,
                 Instant.now(),
                 Duration.ofHours(Math.max(1, Math.min(hours, 72))));
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("id", satellite.getNoradId());
         body.put("name", satellite.getName());
         body.put("observer", Map.of(
@@ -106,7 +106,7 @@ public class SatelliteController {
         Instant when = at == null ? Instant.now() : at;
         List<SatellitePosition> positions = livePositions.calculator()
                 .positions(catalog.catalog().all(), when);
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("count", positions.size());
         body.put("time", when);
         body.put("positions", positions);

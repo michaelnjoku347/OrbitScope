@@ -1,6 +1,5 @@
 package orbitscope;
 
-/** Milestone 1: arrays, loops, a Satellite class, ArrayList, and helper methods. */
 public class Warmup {
     public static void main(String[] args) {
         String[] names = {

@@ -1,13 +1,8 @@
 package orbitscope;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-/**
- * A list of satellites plus the Milestone 1 helper methods:
- * find the highest satellite, and average altitude.
- */
 public class SatelliteCatalog {
     private final List<Satellite> satellites = new ArrayList<>();
 
@@ -20,7 +15,7 @@ public class SatelliteCatalog {
     }
 
     public List<Satellite> all() {
-        return Collections.unmodifiableList(satellites);
+        return satellites;
     }
 
     public Satellite findById(int noradId) {

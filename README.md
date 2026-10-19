@@ -1,96 +1,53 @@
 # OrbitScope
 
-A live 3D globe of Starlink, GPS, and the ISS. A Java / Orekit backend does the orbit math; a Cesium frontend draws a dot for every satellite and updates it every second.
+Starlink, GPS, and the ISS on a 3D globe. Java/Orekit computes positions, Cesium draws them. Default location is Freeport, Bahamas.
 
-**Done-checks already run on this machine**
+![globe](docs/globe.png)
 
-- ISS vs [wheretheiss.at](https://wheretheiss.at): **0.2 km**
-- Compact position feed: **~10k satellites**
-- Kepler kernel vs sequential SGP4: **101×** (see [docs/benchmark.md](docs/benchmark.md))
+## Run
 
-## Demo
+Java 21 and Node.
 
 ```bash
-./run.sh api          # Java API on http://localhost:8080
-./run.sh web          # globe on http://localhost:5173
+./run.sh api    # http://localhost:8080
+./run.sh web    # http://localhost:5173
 ```
 
-Open http://localhost:5173. Cyan dots are Starlink, green is GPS, gold is the ISS, orange is Freeport, Bahamas. Click a dot for NORAD id, altitude, and the next pass over Freeport. Filter chips and the search box hide everyone else.
+Click a satellite for name, altitude, and the next pass over Freeport.
 
-![OrbitScope globe with 10,684 live satellites](docs/globe.png)
-
-JSON without the globe:
-
-- http://localhost:8080/api
-- http://localhost:8080/satellites
-- http://localhost:8080/satellites/25544/position
-- http://localhost:8080/satellites/25544/passes
-- http://localhost:8080/satellites/positions/compact
-
-![benchmark](docs/benchmark.svg)
-
-## Architecture
-
-```mermaid
-flowchart LR
-  CelesTrak["CelesTrak TLE"] --> API["Spring Boot + Orekit"]
-  API -->|"compact lat/lon/alt @ 1 Hz"| Web["Vite + CesiumJS"]
-  API -->|"passes from Freeport"| Web
-  subgraph java [Java]
-    SGP4["SGP4 / SDP4"]
-    Kepler["Kepler array kernel"]
-    SGP4 --- Kepler
-  end
-  API --- SGP4
-```
-
-## Setup
-
-You need **Java 21** and **Node 22**. Maven is `./mvnw`.
+Orekit downloads `orekit-data/` on first run (not in git). CelesTrak sends an empty file if the User-Agent is missing.
 
 ```bash
-./run.sh test         # Java tests
-./run.sh iss          # ISS vs public tracker
-./run.sh bench        # CPU vs Kepler timing
-./run.sh api          # backend
-./run.sh web          # frontend (npm install happens here)
+./run.sh hello
+./run.sh warmup
+./run.sh file      # data/sample-starlink.tle
+./run.sh fetch
+./run.sh iss       # vs wheretheiss.at
+./run.sh bench
+./run.sh test
 ```
 
-The first orbit-math run downloads [Orekit data](https://gitlab.orekit.org/orekit/orekit-data/-/archive/main/orekit-data-main.zip) into `orekit-data/` (gitignored).
+## Accuracy
 
-## Milestones
+ISS vs https://wheretheiss.at at the same timestamp was about 0.2 km.
 
-| Week | Milestone | Where it lives |
-| --- | --- | --- |
-| 0 | First program | `HelloOrbitScope` |
-| 1–2 | Arrays, `Satellite`, list methods | `Warmup` |
-| 3 | TLE file + HTTP | `TleParser`, `TleFetcher` |
-| 4–5 | Orekit lat/lon/alt | `PositionCalculator`, `IssCheck` |
-| 6–7 | Spring Boot JSON + 3 h refresh | `SatelliteController`, `CatalogService` |
-| 8–9 | Cesium globe, 1 Hz dots | `web/` |
-| 10 | Click, search, Freeport passes | `/satellites/{id}/passes` |
-| 11 | Benchmark | `Benchmark`, `docs/benchmark.md` |
-| 12 | Ship | `Dockerfile`, `render.yaml`, `web/vercel.json` |
+## Timing
 
-## Deploy
+No GPU on this machine. Numbers are in [docs/benchmark.md](docs/benchmark.md).
 
-1. Backend: `render.yaml` (Docker) or `fly launch` with the `Dockerfile`. It fetches CelesTrak on boot.
-2. Frontend: Vercel from `web/`. Set `VITE_API_URL` to the Render/Fly origin (no trailing slash).
-3. Point [njoku.dev](https://njoku.dev) at the Vercel URL.
+- Orekit, 1 core: 405 ms
+- Orekit, 4 cores: 165 ms
+- array version: 4 ms (less accurate)
 
-Local Docker (API + built globe in `static/`):
-
-```bash
-docker build -t orbitscope .
-docker run -p 8080:8080 orbitscope
-```
+The globe uses Orekit.
 
 ## Layout
 
 ```
-src/main/java/orbitscope   Java API, Orekit, Kepler kernel
-web/                       TypeScript + Cesium
-data/                      sample TLE files
-docs/benchmark.md          speedup numbers
-NOTES.md                   what I learned
+src/main/java/orbitscope
+web/
+data/
+NOTES.md
 ```
+
+`Dockerfile`, `render.yaml`, and `web/vercel.json` are in the repo. Not deployed yet.

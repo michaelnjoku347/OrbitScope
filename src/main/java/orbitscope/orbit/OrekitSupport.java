@@ -13,11 +13,6 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/**
- * Orekit needs leap seconds and Earth-orientation files before it can turn a
- * TLE into latitude/longitude. This class loads {@code orekit-data/} or
- * downloads it from the Orekit forge the first time you run the program.
- */
 public final class OrekitSupport {
     public static final String DATA_ZIP_URL =
             "https://gitlab.orekit.org/orekit/orekit-data/-/archive/main/orekit-data-main.zip";

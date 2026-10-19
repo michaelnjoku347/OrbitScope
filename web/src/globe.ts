@@ -20,6 +20,7 @@ export interface GlobeHandle {
 }
 
 export async function createGlobe(container: string): Promise<GlobeHandle> {
+  // NaturalEarthII — no Cesium ion token
   const imagery = await Cesium.TileMapServiceImageryProvider.fromUrl(
     Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
   );
@@ -54,8 +55,8 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
       outlineWidth: 1,
     },
     label: {
-      text: "Freeport",
-      font: "12px IBM Plex Sans, sans-serif",
+      text: "home",
+      font: "12px sans-serif",
       fillColor: Cesium.Color.WHITE,
       pixelOffset: new Cesium.Cartesian2(18, -14),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -64,6 +65,7 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
     },
   });
 
+  // Entity collection was too slow at 10k
   const points = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
 
   const apply = (

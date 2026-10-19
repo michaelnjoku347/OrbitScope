@@ -2,7 +2,6 @@ package orbitscope.orbit;
 
 import orbitscope.Satellite;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
-import org.hipparchus.util.FastMath;
 import org.orekit.bodies.GeodeticPoint;
 import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.frames.Frame;
@@ -21,10 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * Milestone 3: use Orekit's SGP4/SDP4 propagator to turn TLE lines into
- * latitude, longitude, and altitude at a chosen time.
- */
 public class PositionCalculator {
     private Frame itrf;
     private OneAxisEllipsoid earth;
@@ -42,15 +37,15 @@ public class PositionCalculator {
         TLEPropagator propagator = propagatorFor(satellite);
         AbsoluteDate date = toAbsoluteDate(when);
         SpacecraftState state = propagator.propagate(date);
-        Vector3D cartesian = state.getPosition(itrf);
-        GeodeticPoint point = earth.transform(cartesian, itrf, date);
+        Vector3D xyz = state.getPosition(itrf);
+        GeodeticPoint point = earth.transform(xyz, itrf, date);
 
         return new SatellitePosition(
                 satellite.getNoradId(),
                 satellite.getName(),
                 when,
-                FastMath.toDegrees(point.getLatitude()),
-                FastMath.toDegrees(point.getLongitude()),
+                Math.toDegrees(point.getLatitude()),
+                Math.toDegrees(point.getLongitude()),
                 point.getAltitude() / 1000.0
         );
     }
@@ -72,39 +67,56 @@ public class PositionCalculator {
     public CompactPositions compact(List<Satellite> satellites, Instant when, boolean parallel) {
         ensureEarth();
         List<Satellite> usable = new ArrayList<>();
-        for (Satellite satellite : satellites) {
+        for (int i = 0; i < satellites.size(); i++) {
+            Satellite satellite = satellites.get(i);
             if (satellite.hasTle()) {
                 usable.add(satellite);
             }
         }
+
         int n = usable.size();
         int[] ids = new int[n];
-        float[] latitude = new float[n];
-        float[] longitude = new float[n];
-        float[] altitudeKm = new float[n];
+        double[] latitude = new double[n];
+        double[] longitude = new double[n];
+        double[] altitudeKm = new double[n];
         String[] group = new String[n];
-        Satellite[] array = usable.toArray(Satellite[]::new);
         AbsoluteDate date = toAbsoluteDate(when);
-        Frame frame = itrf;
-        OneAxisEllipsoid body = earth;
 
-        IntStream range = parallel ? IntStream.range(0, n).parallel() : IntStream.range(0, n);
-        range.forEach(i -> {
-            Satellite satellite = array[i];
-            ids[i] = satellite.getNoradId();
-            group[i] = satellite.getGroup();
-            try {
-                TLEPropagator propagator = propagatorFor(satellite);
-                Vector3D cartesian = propagator.propagate(date).getPosition(frame);
-                GeodeticPoint point = body.transform(cartesian, frame, date);
-                latitude[i] = (float) FastMath.toDegrees(point.getLatitude());
-                longitude[i] = (float) FastMath.toDegrees(point.getLongitude());
-                altitudeKm[i] = (float) (point.getAltitude() / 1000.0);
-            } catch (RuntimeException ignored) {
-                // leave zeros; the globe will skip a bad TLE rather than fail the frame
+        if (parallel) {
+            IntStream.range(0, n).parallel().forEach(i -> {
+                fillOne(usable.get(i), date, ids, latitude, longitude, altitudeKm, group, i);
+            });
+        } else {
+            for (int i = 0; i < n; i++) {
+                fillOne(usable.get(i), date, ids, latitude, longitude, altitudeKm, group, i);
             }
-        });
+        }
+
         return new CompactPositions(when, n, ids, latitude, longitude, altitudeKm, group);
+    }
+
+    private void fillOne(
+            Satellite satellite,
+            AbsoluteDate date,
+            int[] ids,
+            double[] latitude,
+            double[] longitude,
+            double[] altitudeKm,
+            String[] group,
+            int i
+    ) {
+        ids[i] = satellite.getNoradId();
+        group[i] = satellite.getGroup();
+        try {
+            TLEPropagator propagator = propagatorFor(satellite);
+            Vector3D xyz = propagator.propagate(date).getPosition(itrf);
+            GeodeticPoint point = earth.transform(xyz, itrf, date);
+            latitude[i] = Math.toDegrees(point.getLatitude());
+            longitude[i] = Math.toDegrees(point.getLongitude());
+            altitudeKm[i] = point.getAltitude() / 1000.0;
+        } catch (RuntimeException e) {
+            // leave zeros
+        }
     }
 
     Frame itrf() {
@@ -141,7 +153,7 @@ public class PositionCalculator {
         return new AbsoluteDate(Date.from(when), TimeScalesFactory.getUTC());
     }
 
-    static String padTleLine(String line) {
+    static String padTleLine(String line) { // TLE lines are 69 chars
         String trimmed = line.stripTrailing();
         if (trimmed.length() >= 69) {
             return trimmed.substring(0, 69);

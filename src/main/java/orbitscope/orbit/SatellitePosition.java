@@ -2,7 +2,6 @@ package orbitscope.orbit;
 
 import java.time.Instant;
 
-/** Where a satellite is at one instant, in geodetic coordinates. */
 public record SatellitePosition(
         int id,
         String name,

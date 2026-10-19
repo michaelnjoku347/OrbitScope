@@ -10,10 +10,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Milestone 7: time the heavy loop on one core, then across every core, then
- * on the simplified Kepler kernel that a GPU would run.
- */
 public class Benchmark {
     public static void main(String[] args) throws Exception {
         OrekitSupport.ensureLoaded();
@@ -64,7 +60,6 @@ public class Benchmark {
                 }
             }
         }
-        // Repeat the sample set so the timed loop is large enough to measure.
         List<Satellite> seed = new ArrayList<>(catalog.all());
         while (catalog.size() < 2048) {
             for (Satellite satellite : seed) {
@@ -95,37 +90,37 @@ public class Benchmark {
 
         String report() {
             return """
-                    Orekit SGP4 sequential : %d ms
-                    Orekit SGP4 parallel   : %d ms  (%.2fx vs sequential)
-                    Kepler sequential      : %d ms
-                    Kepler parallel        : %d ms  (%.2fx vs Orekit sequential)
+                    Orekit 1 core     : %d ms
+                    Orekit more cores : %d ms  (%.2fx)
+                    my arrays 1 core  : %d ms
+                    my arrays parallel: %d ms  (%.2fx vs orekit 1 core)
                     """.formatted(orekitSeqMs, orekitParMs, orekitSpeedup(), keplerSeqMs, keplerParMs, keplerVsOrekit());
         }
 
         String markdown() {
+            int cores = Runtime.getRuntime().availableProcessors();
             return """
-                    # OrbitScope benchmark
+                    # timing
 
-                    Workload: **%d** satellites × **%d** time steps (30 s apart) on **%d** CPU cores.
-                    No NVIDIA GPU was attached, so the "GPU-shaped" path is a Kepler two-body kernel
-                    over plain arrays, run with Java parallel streams (the same map a CUDA/TornadoVM
-                    kernel would launch).
+                    %d cores, no GPU. %d satellites × %d steps (30s apart). Sample TLEs duplicated so the loop was long enough to measure.
 
-                    | Path | Time | Speedup vs Orekit sequential |
+                    | what | ms | vs Orekit 1 core |
                     | --- | ---: | ---: |
-                    | Orekit SGP4, 1 core | %d ms | 1.00× |
-                    | Orekit SGP4, all cores | %d ms | %.2f× |
-                    | Kepler arrays, 1 core | %d ms | %.2f× |
-                    | Kepler arrays, all cores | %d ms | %.2f× |
+                    | Orekit, 1 core | %d | 1x |
+                    | Orekit, %d cores | %d | %.2fx |
+                    | array version, 1 core | %d | %.0fx |
+                    | array version, %d cores | %d | %.0fx |
 
-                    The Kepler rewrite is the heavy-loop replacement. Hook it to TornadoVM or CUDA/JNI
-                    on a machine with a GPU to go further; the kernel is already a per-satellite map
-                    with no shared mutable state.
+                    Array version skips drag. Globe uses Orekit.
+
+                    `./run.sh bench`
                     """.formatted(
-                    satellites, steps, Runtime.getRuntime().availableProcessors(),
-                    orekitSeqMs, orekitParMs, orekitSpeedup(),
+                    cores,
+                    satellites, steps,
+                    orekitSeqMs,
+                    cores, orekitParMs, orekitSpeedup(),
                     keplerSeqMs, (double) orekitSeqMs / Math.max(1, keplerSeqMs),
-                    keplerParMs, keplerVsOrekit());
+                    cores, keplerParMs, keplerVsOrekit());
         }
 
         String svg() {
@@ -133,8 +128,8 @@ public class Benchmark {
             return """
                     <svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
                       <rect width="720" height="280" fill="#070b14"/>
-                      <text x="24" y="36" fill="#e8eef7" font-family="ui-sans-serif, system-ui" font-size="18">OrbitScope propagation benchmark</text>
-                      <text x="24" y="58" fill="#8b9bb4" font-family="ui-sans-serif, system-ui" font-size="12">%d sats × %d steps · %d cores</text>
+                      <text x="24" y="36" fill="#e8eef7" font-family="system-ui, sans-serif" font-size="18">timing (ms)</text>
+                      <text x="24" y="58" fill="#8b9bb4" font-family="system-ui, sans-serif" font-size="12">%d sats × %d steps · %d cores</text>
                       %s
                       %s
                       %s

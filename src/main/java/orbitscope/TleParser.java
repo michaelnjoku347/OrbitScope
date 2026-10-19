@@ -7,16 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Milestone 2: split TLE text into groups of 3 lines and turn each group
- * into a Satellite.
- *
- * A TLE (two-line element set) from CelesTrak looks like:
- *
- *   STARLINK-1008
- *   1 44714U 19074B   ...
- *   2 44714  53.1443 ...
- */
+// name / line1 / line2, skip blanks
 public class TleParser {
     public static SatelliteCatalog readFile(Path path) throws IOException {
         StringBuilder text = new StringBuilder();

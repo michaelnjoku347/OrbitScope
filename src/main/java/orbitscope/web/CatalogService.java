@@ -46,7 +46,7 @@ public class CatalogService {
                 loadSample();
             }
         } catch (Exception e) {
-            log.warn("Live TLE download failed ({}), falling back to {}", e.getMessage(), sampleTle);
+            log.warn("download failed ({}), using sample file {}", e.getMessage(), sampleTle);
             try {
                 loadSample();
             } catch (Exception fallback) {

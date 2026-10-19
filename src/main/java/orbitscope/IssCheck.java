@@ -12,10 +12,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Milestone 3 done-check: compute the ISS position with Orekit and compare it
- * to https://wheretheiss.at (a public ISS tracker).
- */
 public class IssCheck {
     public static final String TRACKER_URL = "https://api.wheretheiss.at/v1/satellites/25544";
 
@@ -30,10 +26,9 @@ public class IssCheck {
                 result.altitudeDeltaKm(),
                 result.groundDistanceKm());
         if (!result.matches()) {
-            throw new IllegalStateException(
-                    "ISS position does not match the public tracker closely enough");
+            throw new IllegalStateException("way off from the public tracker");
         }
-        System.out.println("Match:   yes (within 2 degrees / 100 km)");
+        System.out.println("ok, close enough");
     }
 
     static Result run() throws Exception {

@@ -3,44 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OrbitScope — live Starlink globe</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <title>OrbitScope</title>
   </head>
   <body>
     <div id="globe"></div>
-    <header class="hud">
-      <div>
-        <p class="kicker">OrbitScope</p>
-        <h1>Every Starlink, live</h1>
-      </div>
-      <p id="status" class="status">Connecting…</p>
-    </header>
-    <aside class="panel">
-      <label class="search">
-        <span>Search</span>
-        <input id="search" type="search" placeholder="STARLINK-1008, ISS, PRN 22" />
+    <div class="hud">
+      <div class="kicker">OrbitScope</div>
+      <h1>Starlink from Freeport</h1>
+      <div id="status" class="status">waiting on the api…</div>
+    </div>
+    <div class="panel">
+      <label>
+        find one
+        <input id="search" type="search" placeholder="starlink-1234 or 25544" />
       </label>
-      <div class="filters" role="tablist">
-        <button data-filter="ALL" class="active">All</button>
-        <button data-filter="STARLINK">Starlink</button>
-        <button data-filter="GPS">GPS</button>
-        <button data-filter="ISS">ISS</button>
+      <div class="filters">
+        <button data-filter="ALL" class="active">all</button>
+        <button data-filter="STARLINK">starlink</button>
+        <button data-filter="GPS">gps</button>
+        <button data-filter="ISS">iss</button>
       </div>
       <div class="legend">
-        <span><i class="dot starlink"></i> Starlink</span>
-        <span><i class="dot gps"></i> GPS</span>
-        <span><i class="dot iss"></i> ISS</span>
-        <span><i class="dot ground"></i> Freeport</span>
+        <span><i class="dot starlink"></i> starlink</span>
+        <span><i class="dot gps"></i> gps</span>
+        <span><i class="dot iss"></i> iss</span>
+        <span><i class="dot ground"></i> home</span>
       </div>
-      <section id="info" class="info">
-        <p>Click a dot. Positions update every second from the Java / Orekit API.</p>
-      </section>
-    </aside>
+      <div id="info" class="info">
+        <p>Click a satellite. Pass times are from Freeport.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

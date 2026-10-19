@@ -8,14 +8,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Milestone 3: compute lat/lon/alt for one satellite, all of them, or a future time.
- *
- *   java orbitscope.Positions
- *   java orbitscope.Positions --file data/sample-iss.tle
- *   java orbitscope.Positions --at 2026-10-19T18:00:00Z
- *   java orbitscope.Positions --future PT90M --all
- */
 public class Positions {
     public static void main(String[] args) throws Exception {
         Arguments arguments = Arguments.parse(args);

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrbitScopeTest {
     @Test
-    void warmupStats() {
+    void testHighestAndAverage() {
         SatelliteCatalog catalog = Warmup.sampleCatalog();
         Satellite highest = catalog.findHighest();
         assertEquals("STARLINK-1039", highest.getName());
@@ -18,7 +18,7 @@ class OrbitScopeTest {
     }
 
     @Test
-    void tleFile() throws Exception {
+    void testReadTleFile() throws Exception {
         Path sample = Path.of("data/sample-starlink.tle");
         SatelliteCatalog catalog = TleParser.readFile(sample);
         assertEquals(3, catalog.size());

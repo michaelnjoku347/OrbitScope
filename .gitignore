@@ -1,11 +1,8 @@
-# Build output
 out/
 target/
 
-# Orekit configuration data (downloaded on first run)
 orekit-data/
 
-# Downloaded full TLE catalogs (keep data/sample-*.tle)
 data/starlink.tle
 data/starlink.txt
 
