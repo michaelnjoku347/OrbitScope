@@ -8,17 +8,20 @@ package orbitscope;
  */
 public class Satellite {
     private final String name;
+    private final int noradId;
     private final double altitudeKm;
     private final double speedKmPerS;
     private final String tleLine1;
     private final String tleLine2;
 
     public Satellite(String name, double altitudeKm, double speedKmPerS) {
-        this(name, altitudeKm, speedKmPerS, null, null);
+        this(name, 0, altitudeKm, speedKmPerS, null, null);
     }
 
-    public Satellite(String name, double altitudeKm, double speedKmPerS, String tleLine1, String tleLine2) {
+    public Satellite(String name, int noradId, double altitudeKm, double speedKmPerS,
+                     String tleLine1, String tleLine2) {
         this.name = name;
+        this.noradId = noradId;
         this.altitudeKm = altitudeKm;
         this.speedKmPerS = speedKmPerS;
         this.tleLine1 = tleLine1;
@@ -26,11 +29,22 @@ public class Satellite {
     }
 
     public static Satellite fromTle(String name, String line1, String line2) {
-        return new Satellite(name.trim(), 0.0, 0.0, line1, line2);
+        return new Satellite(name.trim(), parseNoradId(line1), 0.0, 0.0, line1, line2);
+    }
+
+    static int parseNoradId(String line1) {
+        if (line1 == null || line1.length() < 7) {
+            return 0;
+        }
+        return Integer.parseInt(line1.substring(2, 7).trim());
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getNoradId() {
+        return noradId;
     }
 
     public double getAltitudeKm() {
@@ -47,6 +61,10 @@ public class Satellite {
 
     public String getTleLine2() {
         return tleLine2;
+    }
+
+    public boolean hasTle() {
+        return tleLine1 != null && tleLine2 != null;
     }
 
     @Override

@@ -8,18 +8,30 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * Milestone 2: fetch live Starlink TLE data from CelesTrak over HTTP
+ * Milestone 2: fetch live TLE data from CelesTrak over HTTP
  * instead of reading a file you downloaded by hand.
  */
 public class TleFetcher {
     public static final String STARLINK_TLE_URL =
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=starlink&FORMAT=tle";
+    public static final String ISS_TLE_URL =
+            "https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=tle";
+    public static final int ISS_NORAD_ID = 25544;
 
     private static final String USER_AGENT =
             "OrbitScope/0.1 (https://github.com/michaelnjoku347/OrbitScope)";
 
     public String fetchStarlinkTles() throws IOException, InterruptedException {
         return fetch(STARLINK_TLE_URL);
+    }
+
+    public String fetchIssTle() throws IOException, InterruptedException {
+        return fetch(ISS_TLE_URL);
+    }
+
+    /** ISS first, then every live Starlink. Used by the API and the ISS check. */
+    public String fetchCatalog() throws IOException, InterruptedException {
+        return fetchIssTle() + "\n" + fetchStarlinkTles();
     }
 
     public String fetch(String url) throws IOException, InterruptedException {

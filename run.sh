@@ -4,35 +4,63 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
-mkdir -p out
-mapfile -t sources < <(find src -name '*.java' | sort)
-javac -d out "${sources[@]}"
+if [[ -x "$ROOT/mvnw" ]]; then
+  MVN="$ROOT/mvnw"
+else
+  MVN="${MVN:-/tmp/maven/bin/mvn}"
+fi
+
+run_main() {
+  local main="$1"
+  shift
+  "$MVN" -q -DskipTests compile exec:java \
+    -Dexec.mainClass="$main" \
+    -Dexec.args="$*"
+}
 
 command="${1:-help}"
+shift || true
+
 case "$command" in
   hello)
-    java -cp out orbitscope.HelloOrbitScope
+    run_main orbitscope.HelloOrbitScope
     ;;
   warmup)
-    java -cp out orbitscope.Warmup
+    run_main orbitscope.Warmup
     ;;
   file)
-    java -cp out orbitscope.StarlinkCatalog --file "${2:-data/sample-starlink.tle}"
+    run_main orbitscope.StarlinkCatalog --file "${1:-data/sample-starlink.tle}"
     ;;
   fetch)
-    java -cp out orbitscope.StarlinkCatalog --fetch
+    run_main orbitscope.StarlinkCatalog --fetch
+    ;;
+  iss)
+    run_main orbitscope.IssCheck
+    ;;
+  positions)
+    run_main orbitscope.Positions "$@"
+    ;;
+  future)
+    run_main orbitscope.Positions --future "${1:-PT90M}"
+    ;;
+  api)
+    "$MVN" spring-boot:run
     ;;
   test)
-    java -cp out orbitscope.OrbitScopeTest
+    "$MVN" -q test
     ;;
   *)
     echo "OrbitScope"
     echo
     echo "Usage: ./run.sh <command>"
-    echo "  hello    Milestone 0 — print a line"
-    echo "  warmup   Milestone 1 — arrays, Satellite class, list methods"
-    echo "  file     Milestone 2 — parse a saved TLE file"
-    echo "  fetch    Milestone 2 — download live Starlink TLEs from CelesTrak"
-    echo "  test     run the built-in checks"
+    echo "  hello       Milestone 0 — print a line"
+    echo "  warmup      Milestone 1 — arrays, Satellite class, list methods"
+    echo "  file        Milestone 2 — parse a saved TLE file"
+    echo "  fetch       Milestone 2 — download live Starlink TLEs from CelesTrak"
+    echo "  iss         Milestone 3 — ISS lat/lon/alt vs wheretheiss.at"
+    echo "  positions   Milestone 3 — compute positions (add --all or --future PT90M)"
+    echo "  future      Milestone 3 — ISS and a few Starlinks 90 minutes from now"
+    echo "  api         Milestone 4 — start the Spring Boot JSON API on :8080"
+    echo "  test        run unit tests"
     ;;
 esac
