@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// spring turns these methods into urls. like a javafx controller but for the website.
 @RestController
 public class SatelliteController {
     private final CatalogService catalog;
@@ -34,7 +33,6 @@ public class SatelliteController {
     public Map<String, Object> index() {
         Map<String, Object> body = new HashMap<>();
         body.put("name", "OrbitScope");
-        body.put("note", "java backend for the globe. default location is freeport.");
         body.put("satelliteCount", catalog.catalog().size());
         body.put("updatedAt", catalog.updatedAt());
         body.put("observer", Observer.FREEPORT.name());

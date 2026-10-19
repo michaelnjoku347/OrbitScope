@@ -2,7 +2,6 @@ package orbitscope.orbit;
 
 import java.time.Instant;
 
-/** lat/lon/alt at a given time. */
 public record SatellitePosition(
         int id,
         String name,

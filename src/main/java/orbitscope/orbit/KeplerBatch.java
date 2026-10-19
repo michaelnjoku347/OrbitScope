@@ -10,15 +10,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * Simpler (worse) orbit step using arrays.
- * I wrote this because Orekit objects can't go on a GPU.
- * The globe does NOT use this. It's only for the timing test.
- */
 public class KeplerBatch {
-    // I looked these up. MU = earth gravity, RE = earth radius in meters
-    private static final double MU = 3.986004418e14;
-    private static final double RE = 6378137.0;
+    private static final double MU = 3.986004418e14; // m^3/s^2
+    private static final double RE = 6378137.0; // m
 
     private final int n;
     private final int[] ids;
@@ -81,7 +75,6 @@ public class KeplerBatch {
         }
     }
 
-    // I translated this from wikipedia / a blog. probably missing a lot.
     private void stepOne(int i, double unixSeconds, double[] lat, double[] lon, double[] altKm) {
         double dt = unixSeconds - epochUnix[i];
         double m = meanAnomaly[i] + meanMotion[i] * dt;
@@ -101,7 +94,6 @@ public class KeplerBatch {
         double y = r * (sr * cu + cr * su * ci);
         double z = r * (su * si);
 
-        // rotate from space coords to earth coords. numbers from a gmst formula I copied.
         double days = unixSeconds / 86400.0;
         double gmst = Math.IEEEremainder(4.894961212823672 + 6.30038809898496 * days, 2 * Math.PI);
         double cg = Math.cos(gmst);

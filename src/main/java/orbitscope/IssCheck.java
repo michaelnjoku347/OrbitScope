@@ -12,7 +12,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 
-/** Check my ISS numbers against the internet so I know Orekit isn't garbage. */
 public class IssCheck {
     public static final String TRACKER_URL = "https://api.wheretheiss.at/v1/satellites/25544";
 

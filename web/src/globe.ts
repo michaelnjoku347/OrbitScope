@@ -20,12 +20,11 @@ export interface GlobeHandle {
 }
 
 export async function createGlobe(container: string): Promise<GlobeHandle> {
-  // built-in earth pictures so I don't need a cesium ion account
+  // NaturalEarthII — no Cesium ion token
   const imagery = await Cesium.TileMapServiceImageryProvider.fromUrl(
     Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
   );
 
-  // most of these flags are just "turn the extra cesium buttons off"
   const viewer = new Cesium.Viewer(container, {
     baseLayer: new Cesium.ImageryLayer(imagery),
     terrainProvider: new Cesium.EllipsoidTerrainProvider(),
@@ -66,7 +65,7 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
     },
   });
 
-  // entities were laggy with ~10k sats. this collection is fine.
+  // Entity collection was too slow at 10k
   const points = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
 
   const apply = (

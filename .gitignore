@@ -1,10 +1,8 @@
 out/
 target/
 
-# orekit dumps leap seconds / earth orientation here (big, not mine)
 orekit-data/
 
-# full celestrak dumps. keep the tiny samples in data/
 data/starlink.tle
 data/starlink.txt
 

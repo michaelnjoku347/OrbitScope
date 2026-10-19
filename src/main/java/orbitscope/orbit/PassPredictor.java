@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Check every 30 seconds: is it more than 10 degrees above the horizon? That's a "pass". */
 public class PassPredictor {
     private final PositionCalculator calculator;
 

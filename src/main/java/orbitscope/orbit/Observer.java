@@ -1,6 +1,5 @@
 package orbitscope.orbit;
 
-/** Where I'm standing. Default is home (Freeport). */
 public record Observer(String name, double latitudeDeg, double longitudeDeg, double altitudeM) {
     public static final Observer FREEPORT = new Observer(
             "Freeport, Bahamas",

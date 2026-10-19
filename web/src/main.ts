@@ -4,7 +4,6 @@ import { fetchCatalog, fetchCompact, fetchPasses, type CompactPositions, type Gr
 import { createGlobe } from "./globe";
 import * as Cesium from "cesium";
 
-// same idea as looking up nodes in javafx, just in the browser
 const statusEl = document.getElementById("status") as HTMLElement;
 const infoEl = document.getElementById("info") as HTMLElement;
 const searchEl = document.getElementById("search") as HTMLInputElement;
@@ -94,7 +93,6 @@ async function start() {
     names.set(row.id, row);
   }
 
-  // click handler — same job as a javafx onAction
   globe.viewer.screenSpaceEventHandler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
     const id = globe.pickId(click.position);
     if (id === undefined || !latest) {

@@ -3,7 +3,6 @@ package orbitscope;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Just an ArrayList with findHighest / average. Same idea as looping over stuff in JavaFX. */
 public class SatelliteCatalog {
     private final List<Satellite> satellites = new ArrayList<>();
 

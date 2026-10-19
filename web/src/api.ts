@@ -1,5 +1,3 @@
-// tiny helpers so main.ts isn't full of fetch() calls
-
 export type Group = "STARLINK" | "GPS" | "ISS" | "OTHER" | "ALL";
 
 export interface SatelliteInfo {

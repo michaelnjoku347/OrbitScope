@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-// if findById returns null I throw NoSuchElementException. this turns that into HTTP 404.
 @RestControllerAdvice
 public class RestErrors {
     @ExceptionHandler(NoSuchElementException.class)

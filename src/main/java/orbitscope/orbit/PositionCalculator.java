@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/** Give Orekit the TLE lines, get lat/lon/alt back. I did not write the math. */
 public class PositionCalculator {
     private Frame itrf;
     private OneAxisEllipsoid earth;
@@ -65,7 +64,6 @@ public class PositionCalculator {
         return compact(satellites, when, true);
     }
 
-    // same as positions() but packed into arrays so the json is smaller
     public CompactPositions compact(List<Satellite> satellites, Instant when, boolean parallel) {
         ensureEarth();
         List<Satellite> usable = new ArrayList<>();
@@ -85,7 +83,6 @@ public class PositionCalculator {
         AbsoluteDate date = toAbsoluteDate(when);
 
         if (parallel) {
-            // googled "java use more cores". I think this splits the loop.
             IntStream.range(0, n).parallel().forEach(i -> {
                 fillOne(usable.get(i), date, ids, latitude, longitude, altitudeKm, group, i);
             });
@@ -118,7 +115,7 @@ public class PositionCalculator {
             longitude[i] = Math.toDegrees(point.getLongitude());
             altitudeKm[i] = point.getAltitude() / 1000.0;
         } catch (RuntimeException e) {
-            // bad tle, leave 0 and the globe skips it
+            // leave zeros
         }
     }
 
@@ -144,7 +141,6 @@ public class PositionCalculator {
     private void ensureEarth() {
         OrekitSupport.ensureLoaded();
         if (earth == null) {
-            // copied from the orekit tle tutorial. did not change the frame names.
             itrf = FramesFactory.getITRF(IERSConventions.IERS_2010, true);
             earth = new OneAxisEllipsoid(
                     Constants.WGS84_EARTH_EQUATORIAL_RADIUS,
@@ -157,8 +153,7 @@ public class PositionCalculator {
         return new AbsoluteDate(Date.from(when), TimeScalesFactory.getUTC());
     }
 
-    // orekit wants each TLE line to be 69 characters
-    static String padTleLine(String line) {
+    static String padTleLine(String line) { // TLE lines are 69 chars
         String trimmed = line.stripTrailing();
         if (trimmed.length() >= 69) {
             return trimmed.substring(0, 69);

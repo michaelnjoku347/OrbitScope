@@ -1,6 +1,5 @@
 package orbitscope;
 
-/** One satellite. Kind of like a model class from the JavaFX calculator, but with orbit fields. */
 public class Satellite {
     private final String name;
     private final int noradId;

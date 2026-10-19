@@ -2,7 +2,6 @@ package orbitscope;
 
 import java.nio.file.Path;
 
-/** Print names + how many we got. `--file` or `--fetch`. */
 public class StarlinkCatalog {
     public static void main(String[] args) throws Exception {
         SatelliteCatalog catalog;

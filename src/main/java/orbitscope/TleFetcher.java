@@ -9,10 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-/**
- * Downloads TLE text from CelesTrak.
- * They ignore you unless User-Agent looks like a real app. I found that out the hard way.
- */
 @Component
 public class TleFetcher {
     public static final String STARLINK_TLE_URL =
@@ -23,6 +19,7 @@ public class TleFetcher {
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=gps-ops&FORMAT=tle";
     public static final int ISS_NORAD_ID = 25544;
 
+    // empty response without this
     private static final String USER_AGENT =
             "OrbitScope/0.1 (https://github.com/michaelnjoku347/OrbitScope)";
 
@@ -38,7 +35,6 @@ public class TleFetcher {
         return fetch(GPS_TLE_URL);
     }
 
-    /** ISS, GPS, then every live Starlink. Used by the API and the globe. */
     public String fetchCatalog() throws IOException, InterruptedException {
         return fetchIssTle() + "\n" + fetchGpsTles() + "\n" + fetchStarlinkTles();
     }

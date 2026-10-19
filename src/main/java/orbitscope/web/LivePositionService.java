@@ -17,7 +17,6 @@ public class LivePositionService {
         this.catalog = catalog;
     }
 
-    // update once a second so the globe doesn't rerun orekit on every click
     @Scheduled(fixedDelayString = "${orbitscope.live-positions-ms:1000}")
     public void refresh() {
         latest = calculator.compact(catalog.catalog().all(), Instant.now(), true);

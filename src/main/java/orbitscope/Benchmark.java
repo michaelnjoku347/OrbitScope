@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Times Orekit vs the Kepler array version. Prints a table and writes docs/. */
 public class Benchmark {
     public static void main(String[] args) throws Exception {
         OrekitSupport.ensureLoaded();
@@ -61,7 +60,6 @@ public class Benchmark {
                 }
             }
         }
-        // Repeat the sample set so the timed loop is large enough to measure.
         List<Satellite> seed = new ArrayList<>(catalog.all());
         while (catalog.size() < 2048) {
             for (Satellite satellite : seed) {
@@ -102,24 +100,20 @@ public class Benchmark {
         String markdown() {
             int cores = Runtime.getRuntime().availableProcessors();
             return """
-                    # timing notes
+                    # timing
 
-                    I ran this on a %d core computer. no gpu.
+                    %d cores, no GPU. %d satellites × %d steps (30s apart). Sample TLEs duplicated so the loop was long enough to measure.
 
-                    I copied the sample satellites until I had %d, then moved them %d times (30 seconds apart). not a perfect test. I just wanted to see if using more cores helped.
-
-                    | what | ms | vs 1 core orekit |
+                    | what | ms | vs Orekit 1 core |
                     | --- | ---: | ---: |
                     | Orekit, 1 core | %d | 1x |
                     | Orekit, %d cores | %d | %.2fx |
-                    | my array version, 1 core | %d | %.0fx |
-                    | my array version, %d cores | %d | %.0fx |
+                    | array version, 1 core | %d | %.0fx |
+                    | array version, %d cores | %d | %.0fx |
 
-                    the array one is less accurate. I skipped drag and a bunch of other stuff. the globe still uses Orekit.
+                    Array version skips drag. Globe uses Orekit.
 
-                    there's a java gpu library called TornadoVM. I didn't run it. no gpu here.
-
-                    run again: `./run.sh bench`
+                    `./run.sh bench`
                     """.formatted(
                     cores,
                     satellites, steps,
@@ -135,7 +129,7 @@ public class Benchmark {
                     <svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
                       <rect width="720" height="280" fill="#070b14"/>
                       <text x="24" y="36" fill="#e8eef7" font-family="system-ui, sans-serif" font-size="18">timing (ms)</text>
-                      <text x="24" y="58" fill="#8b9bb4" font-family="system-ui, sans-serif" font-size="12">%d sats × %d steps · %d cores · no gpu on this box</text>
+                      <text x="24" y="58" fill="#8b9bb4" font-family="system-ui, sans-serif" font-size="12">%d sats × %d steps · %d cores</text>
                       %s
                       %s
                       %s

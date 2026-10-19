@@ -7,10 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CelesTrak files are name, line1, line2, repeat.
- * Skip blank lines, then take groups of 3.
- */
+// name / line1 / line2, skip blanks
 public class TleParser {
     public static SatelliteCatalog readFile(Path path) throws IOException {
         StringBuilder text = new StringBuilder();
