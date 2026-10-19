@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: orbitscope-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /api
+    envVars:
+      - key: JAVA_OPTS
+        value: -Xmx512m

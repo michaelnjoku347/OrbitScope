@@ -9,6 +9,10 @@ orekit-data/
 data/starlink.tle
 data/starlink.txt
 
+# Frontend
+web/node_modules/
+web/dist/
+
 # IDE
 .idea/
 *.iml

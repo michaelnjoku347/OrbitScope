@@ -16,6 +16,8 @@ public class TleFetcher {
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=starlink&FORMAT=tle";
     public static final String ISS_TLE_URL =
             "https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=tle";
+    public static final String GPS_TLE_URL =
+            "https://celestrak.org/NORAD/elements/gp.php?GROUP=gps-ops&FORMAT=tle";
     public static final int ISS_NORAD_ID = 25544;
 
     private static final String USER_AGENT =
@@ -29,9 +31,13 @@ public class TleFetcher {
         return fetch(ISS_TLE_URL);
     }
 
-    /** ISS first, then every live Starlink. Used by the API and the ISS check. */
+    public String fetchGpsTles() throws IOException, InterruptedException {
+        return fetch(GPS_TLE_URL);
+    }
+
+    /** ISS, GPS, then every live Starlink. Used by the API and the globe. */
     public String fetchCatalog() throws IOException, InterruptedException {
-        return fetchIssTle() + "\n" + fetchStarlinkTles();
+        return fetchIssTle() + "\n" + fetchGpsTles() + "\n" + fetchStarlinkTles();
     }
 
     public String fetch(String url) throws IOException, InterruptedException {

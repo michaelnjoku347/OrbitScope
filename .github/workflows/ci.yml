@@ -14,11 +14,21 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
       - name: Download Orekit data
         run: |
           curl -fsSL -o /tmp/orekit-data-main.zip \
             "https://gitlab.orekit.org/orekit/orekit-data/-/archive/main/orekit-data-main.zip"
           unzip -q /tmp/orekit-data-main.zip
           mv orekit-data-main orekit-data
-      - name: Test
+      - name: Test Java
         run: ./mvnw -B test
+      - name: Build globe
+        working-directory: web
+        run: |
+          npm install
+          npm run build

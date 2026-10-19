@@ -1,3 +1,4 @@
 orbitscope:
   fetch-on-startup: false
   sample-tle: data/sample-iss.tle
+  live-positions-ms: 3600000

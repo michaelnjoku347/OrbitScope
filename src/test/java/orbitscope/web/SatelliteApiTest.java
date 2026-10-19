@@ -43,4 +43,28 @@ class SatelliteApiTest {
         mvc.perform(get("/satellites/1/position"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void listIncludesGroup() throws Exception {
+        mvc.perform(get("/satellites"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.satellites[0].group").exists());
+    }
+
+    @Test
+    void compactPositions() throws Exception {
+        mvc.perform(get("/satellites/positions/compact"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(greaterThan(0)))
+                .andExpect(jsonPath("$.ids").isArray())
+                .andExpect(jsonPath("$.latitude").isArray());
+    }
+
+    @Test
+    void issPassesFromFreeport() throws Exception {
+        mvc.perform(get("/satellites/25544/passes").param("hours", "24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.observer.name").value("Freeport, Bahamas"))
+                .andExpect(jsonPath("$.passes").isArray());
+    }
 }

@@ -32,6 +32,21 @@ public class Satellite {
         return new Satellite(name.trim(), parseNoradId(line1), 0.0, 0.0, line1, line2);
     }
 
+    /** Starlink, GPS, ISS, or OTHER — used by the globe filters. */
+    public String getGroup() {
+        String upper = name.toUpperCase();
+        if (upper.contains("ISS") || upper.contains("ZARYA")) {
+            return "ISS";
+        }
+        if (upper.contains("STARLINK")) {
+            return "STARLINK";
+        }
+        if (upper.contains("GPS") || upper.contains("NAVSTAR")) {
+            return "GPS";
+        }
+        return "OTHER";
+    }
+
     static int parseNoradId(String line1) {
         if (line1 == null || line1.length() < 7) {
             return 0;
