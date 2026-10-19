@@ -1,3 +1,15 @@
+# Build output
+out/
+
+# Downloaded full TLE catalogs (keep data/sample-starlink.tle)
+data/starlink.tle
+data/starlink.txt
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
 # Compiled class file
 *.class
 
