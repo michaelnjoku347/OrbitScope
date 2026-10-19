@@ -2,7 +2,7 @@ package orbitscope.orbit;
 
 import java.time.Instant;
 
-/** The skinny JSON the globe polls every second. */
+/** Arrays instead of a giant list of objects. Smaller json for the globe. */
 public record CompactPositions(
         Instant time,
         int count,

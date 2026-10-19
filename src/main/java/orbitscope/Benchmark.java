@@ -92,10 +92,10 @@ public class Benchmark {
 
         String report() {
             return """
-                    Orekit SGP4 sequential : %d ms
-                    Orekit SGP4 parallel   : %d ms  (%.2fx vs sequential)
-                    Kepler sequential      : %d ms
-                    Kepler parallel        : %d ms  (%.2fx vs Orekit sequential)
+                    Orekit 1 core     : %d ms
+                    Orekit more cores : %d ms  (%.2fx)
+                    my arrays 1 core  : %d ms
+                    my arrays parallel: %d ms  (%.2fx vs orekit 1 core)
                     """.formatted(orekitSeqMs, orekitParMs, orekitSpeedup(), keplerSeqMs, keplerParMs, keplerVsOrekit());
         }
 
@@ -104,22 +104,22 @@ public class Benchmark {
             return """
                     # timing notes
 
-                    I ran this on a %d-core box with no GPU.
+                    I ran this on a %d core computer. no gpu.
 
-                    Work: %d satellites × %d steps, 30 seconds apart. (I duplicated the sample TLEs so the loop was big enough to measure. Not scientifically perfect.)
+                    I copied the sample satellites until I had %d, then moved them %d times (30 seconds apart). not a perfect test. I just wanted to see if using more cores helped.
 
-                    | what | ms | vs orekit 1-core |
+                    | what | ms | vs 1 core orekit |
                     | --- | ---: | ---: |
-                    | Orekit SGP4, 1 core | %d | 1× |
-                    | Orekit SGP4, %d cores | %d | %.2f× |
-                    | my Kepler thing, 1 core | %d | %.0f× |
-                    | Kepler, %d cores | %d | %.0f× |
+                    | Orekit, 1 core | %d | 1x |
+                    | Orekit, %d cores | %d | %.2fx |
+                    | my array version, 1 core | %d | %.0fx |
+                    | my array version, %d cores | %d | %.0fx |
 
-                    Kepler is cheating a bit — no drag, circular-ish, I convert ECI with a GMST hack. It's the version I'd try on a GPU (TornadoVM / CUDA) because it's just arrays.
+                    the array one is less accurate. I skipped drag and a bunch of other stuff. the globe still uses Orekit.
 
-                    Orekit is the one the globe actually uses.
+                    there's a java gpu library called TornadoVM. I didn't run it. no gpu here.
 
-                    Re-run: `./run.sh bench`
+                    run again: `./run.sh bench`
                     """.formatted(
                     cores,
                     satellites, steps,

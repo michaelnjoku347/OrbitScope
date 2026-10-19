@@ -1,16 +1,16 @@
 # notes
 
-oct 2026 — i'm building this as I go, not as a polished thing. dumping stuff here so i remember it for interviews / when i break it later.
+before this the last thing I built myself was a calculator in javafx. this is way bigger. writing things down so I remember them when I have to explain the project.
 
-## getting java to do anything
+## java
 
-public repo, MIT, then I sat there with an empty folder. `HelloOrbitScope` printing a line felt stupid but at least git had a commit.
+HelloOrbitScope is just println. felt dumb but I needed a first commit.
 
-warmup week was arrays and a Satellite class. i still write the highest/average methods as regular for loops. streams make me lose the plot.
+warmup is arrays + a Satellite class. findHighest / averageAltitude are regular for loops. I still think of it like looping over a list of buttons in javafx. streams confuse me.
 
-## TLE files are ugly on purpose
+## tle files
 
-downloaded starlink.txt from celestrak by hand first. it's just:
+celestrak files look like:
 
 ```
 NAME
@@ -18,52 +18,59 @@ NAME
 2 ....
 ```
 
-over and over. once you see the pattern it's not scary.
+over and over. parser just skips blank lines and takes groups of 3.
 
-then i fetched it instead of using the file. spent an evening getting back an empty response. they block default java user-agents. put the github url in the header and it started working. annoying.
+downloading was worse. they block java's default user-agent so I got an empty file for a long time. put my github url in the header and it worked.
 
-## orekit
+## orekit (I don't really get this)
 
-maven is just "list the library in pom.xml and it shows up." that part was fine.
+I cannot do orbital mechanics. orekit is a library that does it.
 
-orekit itself would not start. the error is about data providers / UTC-TAI. you have to download their orekit-data zip (leap seconds, earth orientation, a bunch of other stuff i don't use). i put that behind `OrekitSupport` so it grabs the zip if the folder isn't there.
+it won't even start without a zip of leap seconds / earth data. OrekitSupport downloads that if the folder is missing.
 
-once that's loaded: TLE in, lat/lon/alt out. i checked the ISS against wheretheiss.at. 0.2 km. i was expecting worse.
+after that: give it the 2 TLE lines, get lat/lon/alt back. I compared ISS to wheretheiss.at. 0.2 km. I was expecting to be way off.
 
-ITRF vs TEME vs whatever — i copied the frames from their tutorial and did not look back.
+the frame names (ITRF etc) I copied from their tutorial. I did not change them.
 
-## the api
+## spring boot
 
-spring boot is a lot of annotations but `/satellites` and `/satellites/25544/position` actually did what i wanted on the first try. refresh every 3 hours because celestrak doesn't want you hammering them.
+this is the "controllers" part, like javafx but the UI is a website.
 
-full position json for 10k sats was like 1.8MB. the globe was choking so i made `/satellites/positions/compact` with parallel float arrays. that one i'd actually show someone.
+`@GetMapping("/satellites")` means that url returns json. I followed a tutorial.
 
-## cesium
+refresh every 3 hours because celestrak doesn't want you downloading constantly.
 
-i do not like javascript but typescript + vite was ok.
+the full json was like 1.8MB and the globe got slow, so I made a second url that is just arrays of numbers. `/satellites/positions/compact`
 
-entities = lag. PointPrimitiveCollection = fine. click handling is a little janky, you have to actually hit the dot.
+## the globe
 
-the page is just a dark overlay on cesium. search box, four filter buttons, that's it. i was not going to spend a week on css.
+I had never made a real javascript app. vite runs the page. cesium draws the earth.
 
-freeport is hard-coded as the observer because that's home. "when can i see it" is just: is the elevation > 10 degrees, sampled every 30 seconds. not fancy. ISS pops up a few times a day.
+drawing 10k cesium "entities" lagged so I switched to PointPrimitiveCollection like a stackoverflow post said.
 
-## "gpu"
+clicking is annoying. the dots are tiny. you have to actually hit one.
 
-i do not have an nvidia card here.
+css is a dark box on top of the globe. I was not going to spend a week making it pretty. javafx css was the same vibe.
 
-tore through tornadoVM docs. it's a java thing that compiles annotated loops to opencl/ptx. you don't rewrite in cuda, you write a tight loop over arrays and tag it `@Parallel`. that's why KeplerBatch exists — orekit objects can't go on a gpu.
+home = freeport. "when can I see it" = is it more than 10 degrees above the horizon, check every 30 seconds. that's it. I didn't get orekit's fancy detector working.
 
-so the benchmark is:
-1. orekit sequential
-2. orekit parallel streams (2.5x on 4 cores)
-3. kepler arrays (100x, but it's a simpler model)
+## gpu / tornadovm
 
-if i get on a machine with a gpu i'd plug tornadoVM into KeplerBatch. until then i'm not going to fake a gpu number.
+I don't have an nvidia gpu.
+
+people said tornadovm can run java loops on a gpu. I don't have one so I didn't actually do that. KeplerBatch is just the same math using arrays because that's what you'd send to a gpu.
+
+benchmark is:
+
+1. orekit one core
+2. orekit more cores (parallelStream)
+3. my array version
+
+if I ever get a gpu I would try tornadovm on KeplerBatch. not faking a number.
 
 ## still todo
 
-- actually deploy (render + vercel) and put it on njoku.dev
-- gif of the globe rotating, readme has a screenshot for now
-- tornadoVM for real
-- click-to-select is easy to miss on starlink because the dots are tiny
+- put it on the internet (render / vercel) and link njoku.dev
+- gif of the globe. screenshot in the readme for now
+- actually try tornadovm
+- clicking starlink is hard because the dots are small

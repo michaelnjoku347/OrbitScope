@@ -20,10 +20,12 @@ export interface GlobeHandle {
 }
 
 export async function createGlobe(container: string): Promise<GlobeHandle> {
+  // built-in earth pictures so I don't need a cesium ion account
   const imagery = await Cesium.TileMapServiceImageryProvider.fromUrl(
     Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"),
   );
 
+  // most of these flags are just "turn the extra cesium buttons off"
   const viewer = new Cesium.Viewer(container, {
     baseLayer: new Cesium.ImageryLayer(imagery),
     terrainProvider: new Cesium.EllipsoidTerrainProvider(),

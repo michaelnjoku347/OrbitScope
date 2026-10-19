@@ -8,9 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Dump positions. Default is now; `--future PT90M` is 90 minutes out.
- */
+/** Print lat/lon/alt. `--future PT90M` means 90 minutes from now. */
 public class Positions {
     public static void main(String[] args) throws Exception {
         Arguments arguments = Arguments.parse(args);

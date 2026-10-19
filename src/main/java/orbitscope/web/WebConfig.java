@@ -8,7 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // vite is on :5173 locally
+        // the globe page is on :5173 and the api is on :8080.
+        // the browser blocked it until I added this.
         registry.addMapping("/**").allowedMethods("GET").allowedOriginPatterns("*");
     }
 }

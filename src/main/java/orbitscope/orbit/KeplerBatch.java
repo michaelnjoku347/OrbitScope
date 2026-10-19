@@ -1,7 +1,6 @@
 package orbitscope.orbit;
 
 import orbitscope.Satellite;
-import org.hipparchus.util.FastMath;
 import org.orekit.propagation.analytical.tle.TLE;
 import org.orekit.time.AbsoluteDate;
 import org.orekit.time.TimeScalesFactory;
@@ -12,10 +11,12 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * Cheap Kepler step over arrays. Not as accurate as Orekit.
- * Wrote it this way so I can try TornadoVM later (needs a GPU I don't have).
+ * Simpler (worse) orbit step using arrays.
+ * I wrote this because Orekit objects can't go on a GPU.
+ * The globe does NOT use this. It's only for the timing test.
  */
 public class KeplerBatch {
+    // I looked these up. MU = earth gravity, RE = earth radius in meters
     private static final double MU = 3.986004418e14;
     private static final double RE = 6378137.0;
 
@@ -31,9 +32,9 @@ public class KeplerBatch {
 
     public KeplerBatch(List<Satellite> satellites) {
         List<Satellite> usable = new ArrayList<>();
-        for (Satellite satellite : satellites) {
-            if (satellite.hasTle()) {
-                usable.add(satellite);
+        for (int i = 0; i < satellites.size(); i++) {
+            if (satellites.get(i).hasTle()) {
+                usable.add(satellites.get(i));
             }
         }
         n = usable.size();
@@ -60,7 +61,7 @@ public class KeplerBatch {
             raan[i] = tle.getRaan();
             argp[i] = tle.getPerigeeArgument();
             meanAnomaly[i] = tle.getMeanAnomaly();
-            semiMajor[i] = FastMath.cbrt(MU / (meanMotion[i] * meanMotion[i]));
+            semiMajor[i] = Math.cbrt(MU / (meanMotion[i] * meanMotion[i]));
         }
     }
 
@@ -69,38 +70,49 @@ public class KeplerBatch {
     }
 
     public void propagate(double unixSeconds, float[] lat, float[] lon, float[] altKm, boolean parallel) {
-        IntStream range = parallel ? IntStream.range(0, n).parallel() : IntStream.range(0, n);
-        range.forEach(i -> {
-            double dt = unixSeconds - epochUnix[i];
-            double m = meanAnomaly[i] + meanMotion[i] * dt;
-            m = FastMath.IEEEremainder(m, 2 * FastMath.PI);
-            if (m < 0) {
-                m += 2 * FastMath.PI;
+        if (parallel) {
+            IntStream.range(0, n).parallel().forEach(i -> {
+                stepOne(i, unixSeconds, lat, lon, altKm);
+            });
+        } else {
+            for (int i = 0; i < n; i++) {
+                stepOne(i, unixSeconds, lat, lon, altKm);
             }
-            double u = argp[i] + m;
-            double cu = FastMath.cos(u);
-            double su = FastMath.sin(u);
-            double ci = FastMath.cos(inclination[i]);
-            double si = FastMath.sin(inclination[i]);
-            double cr = FastMath.cos(raan[i]);
-            double sr = FastMath.sin(raan[i]);
-            double r = semiMajor[i];
-            double x = r * (cr * cu - sr * su * ci);
-            double y = r * (sr * cu + cr * su * ci);
-            double z = r * (su * si);
+        }
+    }
 
-            double days = unixSeconds / 86400.0;
-            double gmst = FastMath.IEEEremainder(4.894961212823672 + 6.30038809898496 * days, 2 * FastMath.PI);
-            double cg = FastMath.cos(gmst);
-            double sg = FastMath.sin(gmst);
-            double xe = cg * x + sg * y;
-            double ye = -sg * x + cg * y;
-            double ze = z;
+    // I translated this from wikipedia / a blog. probably missing a lot.
+    private void stepOne(int i, double unixSeconds, float[] lat, float[] lon, float[] altKm) {
+        double dt = unixSeconds - epochUnix[i];
+        double m = meanAnomaly[i] + meanMotion[i] * dt;
+        m = Math.IEEEremainder(m, 2 * Math.PI);
+        if (m < 0) {
+            m += 2 * Math.PI;
+        }
+        double u = argp[i] + m;
+        double cu = Math.cos(u);
+        double su = Math.sin(u);
+        double ci = Math.cos(inclination[i]);
+        double si = Math.sin(inclination[i]);
+        double cr = Math.cos(raan[i]);
+        double sr = Math.sin(raan[i]);
+        double r = semiMajor[i];
+        double x = r * (cr * cu - sr * su * ci);
+        double y = r * (sr * cu + cr * su * ci);
+        double z = r * (su * si);
 
-            lon[i] = (float) FastMath.toDegrees(FastMath.atan2(ye, xe));
-            lat[i] = (float) FastMath.toDegrees(FastMath.atan2(ze, FastMath.sqrt(xe * xe + ye * ye)));
-            altKm[i] = (float) ((FastMath.sqrt(xe * xe + ye * ye + ze * ze) - RE) / 1000.0);
-        });
+        // rotate from space coords to earth coords. numbers from a gmst formula I copied.
+        double days = unixSeconds / 86400.0;
+        double gmst = Math.IEEEremainder(4.894961212823672 + 6.30038809898496 * days, 2 * Math.PI);
+        double cg = Math.cos(gmst);
+        double sg = Math.sin(gmst);
+        double xe = cg * x + sg * y;
+        double ye = -sg * x + cg * y;
+        double ze = z;
+
+        lon[i] = (float) Math.toDegrees(Math.atan2(ye, xe));
+        lat[i] = (float) Math.toDegrees(Math.atan2(ze, Math.sqrt(xe * xe + ye * ye)));
+        altKm[i] = (float) ((Math.sqrt(xe * xe + ye * ye + ze * ze) - RE) / 1000.0);
     }
 
     public void propagateSteps(double startUnix, double stepSeconds, int steps, boolean parallel) {

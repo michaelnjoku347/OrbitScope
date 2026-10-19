@@ -1,5 +1,7 @@
 package orbitscope;
 
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,8 +10,10 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * Live TLEs from CelesTrak. They ignore you unless User-Agent looks like a real app.
+ * Downloads TLE text from CelesTrak.
+ * They ignore you unless User-Agent looks like a real app. I found that out the hard way.
  */
+@Component
 public class TleFetcher {
     public static final String STARLINK_TLE_URL =
             "https://celestrak.org/NORAD/elements/gp.php?GROUP=starlink&FORMAT=tle";

@@ -1,18 +1,18 @@
 # timing notes
 
-I ran this on a 4-core box with no GPU.
+I ran this on a 4 core computer. no gpu.
 
-Work: 2048 satellites × 20 steps, 30 seconds apart. (I duplicated the sample TLEs so the loop was big enough to measure. Not scientifically perfect.)
+I copied the sample satellites until I had 2048, then moved them 20 times (30 seconds apart). not a perfect test. I just wanted to see if using more cores helped.
 
-| what | ms | vs orekit 1-core |
+| what | ms | vs 1 core orekit |
 | --- | ---: | ---: |
-| Orekit SGP4, 1 core | 405 | 1× |
-| Orekit SGP4, 4 cores | 165 | 2.45× |
-| my Kepler thing, 1 core | 9 | 45× |
-| Kepler, 4 cores | 4 | 101× |
+| Orekit, 1 core | 405 | 1x |
+| Orekit, 4 cores | 165 | 2.45x |
+| my array version, 1 core | 9 | 45x |
+| my array version, 4 cores | 4 | 101x |
 
-Kepler is cheating a bit — no drag, circular-ish, I convert ECI with a GMST hack. It's the version I'd try on a GPU (TornadoVM / CUDA) because it's just arrays.
+the array one is less accurate. I skipped drag and a bunch of other stuff. the globe still uses Orekit.
 
-Orekit is the one the globe actually uses.
+there's a java gpu library called TornadoVM. I didn't run it. no gpu here.
 
-Re-run: `./run.sh bench`
+run again: `./run.sh bench`

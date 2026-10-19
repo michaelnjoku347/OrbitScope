@@ -15,7 +15,7 @@
     <artifactId>orbitscope</artifactId>
     <version>0.1.0</version>
     <name>OrbitScope</name>
-    <description>starlink on a globe, java backend</description>
+    <description>school project — starlink dots on a globe</description>
 
     <properties>
         <java.version>21</java.version>

@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/** Orekit refuses to start without their data zip. Download it if we have to. */
+/** Orekit will not start without a data zip. Download it if the folder is missing. */
 public final class OrekitSupport {
     public static final String DATA_ZIP_URL =
             "https://gitlab.orekit.org/orekit/orekit-data/-/archive/main/orekit-data-main.zip";

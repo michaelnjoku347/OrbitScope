@@ -1,3 +1,5 @@
+// tiny helpers so main.ts isn't full of fetch() calls
+
 export type Group = "STARLINK" | "GPS" | "ISS" | "OTHER" | "ALL";
 
 export interface SatelliteInfo {
@@ -25,22 +27,22 @@ export interface Pass {
 
 const API = import.meta.env.VITE_API_URL ?? "";
 
-async function get<T>(path: string): Promise<T> {
-  const response = await fetch(`${API}${path}`);
+async function getJson(path: string) {
+  const response = await fetch(API + path);
   if (!response.ok) {
-    throw new Error(`couldn't load ${path} (${response.status})`);
+    throw new Error("couldn't load " + path + " (" + response.status + ")");
   }
-  return response.json() as Promise<T>;
+  return response.json();
 }
 
-export function fetchCatalog() {
-  return get<{ count: number; satellites: SatelliteInfo[] }>("/satellites");
+export function fetchCatalog(): Promise<{ satellites: SatelliteInfo[] }> {
+  return getJson("/satellites");
 }
 
-export function fetchCompact() {
-  return get<CompactPositions>("/satellites/positions/compact");
+export function fetchCompact(): Promise<CompactPositions> {
+  return getJson("/satellites/positions/compact");
 }
 
-export function fetchPasses(id: number) {
-  return get<{ observer: { name: string }; passes: Pass[] }>(`/satellites/${id}/passes`);
+export function fetchPasses(id: number): Promise<{ observer: { name: string }; passes: Pass[] }> {
+  return getJson("/satellites/" + id + "/passes");
 }

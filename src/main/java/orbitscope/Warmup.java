@@ -1,5 +1,6 @@
 package orbitscope;
 
+/** First real Java after the calculator — arrays and a class. */
 public class Warmup {
     public static void main(String[] args) {
         String[] names = {

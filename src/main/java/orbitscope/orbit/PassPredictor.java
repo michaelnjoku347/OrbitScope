@@ -2,7 +2,6 @@ package orbitscope.orbit;
 
 import orbitscope.Satellite;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
-import org.hipparchus.util.FastMath;
 import org.orekit.bodies.GeodeticPoint;
 import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.frames.Frame;
@@ -15,7 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Walk forward in 30s steps and remember when a sat is above 10° elevation. */
+/** Check every 30 seconds: is it more than 10 degrees above the horizon? That's a "pass". */
 public class PassPredictor {
     private final PositionCalculator calculator;
 
@@ -43,13 +42,13 @@ public class PassPredictor {
         Frame itrf = calculator.itrf();
         OneAxisEllipsoid earth = calculator.earth();
         GeodeticPoint site = new GeodeticPoint(
-                FastMath.toRadians(observer.latitudeDeg()),
-                FastMath.toRadians(observer.longitudeDeg()),
+                Math.toRadians(observer.latitudeDeg()),
+                Math.toRadians(observer.longitudeDeg()),
                 observer.altitudeM());
         TopocentricFrame topo = new TopocentricFrame(earth, site, observer.name());
         AbsoluteDate start = PositionCalculator.toAbsoluteDate(from);
         int steps = Math.max(2, (int) (window.toSeconds() / stepSeconds));
-        double minEl = FastMath.toRadians(minElevationDeg);
+        double minEl = Math.toRadians(minElevationDeg);
 
         List<Pass> passes = new ArrayList<>();
         Instant passStart = null;
@@ -73,7 +72,7 @@ public class PassPredictor {
                 }
                 lastVisible = time;
             } else if (passStart != null) {
-                passes.add(new Pass(passStart, peakTime, lastVisible, FastMath.toDegrees(peakEl)));
+                passes.add(new Pass(passStart, peakTime, lastVisible, Math.toDegrees(peakEl)));
                 passStart = null;
                 peakTime = null;
                 peakEl = Double.NEGATIVE_INFINITY;
@@ -81,7 +80,7 @@ public class PassPredictor {
             }
         }
         if (passStart != null) {
-            passes.add(new Pass(passStart, peakTime, lastVisible, FastMath.toDegrees(peakEl)));
+            passes.add(new Pass(passStart, peakTime, lastVisible, Math.toDegrees(peakEl)));
         }
         return passes;
     }

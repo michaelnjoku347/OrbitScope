@@ -2,7 +2,6 @@ package orbitscope.orbit;
 
 import orbitscope.Satellite;
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
-import org.hipparchus.util.FastMath;
 import org.orekit.bodies.GeodeticPoint;
 import org.orekit.bodies.OneAxisEllipsoid;
 import org.orekit.frames.Frame;
@@ -21,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/** TLE in, lat/lon/alt out. This is the Orekit wrapper I actually understand. */
+/** Give Orekit the TLE lines, get lat/lon/alt back. I did not write the math. */
 public class PositionCalculator {
     private Frame itrf;
     private OneAxisEllipsoid earth;
@@ -39,15 +38,15 @@ public class PositionCalculator {
         TLEPropagator propagator = propagatorFor(satellite);
         AbsoluteDate date = toAbsoluteDate(when);
         SpacecraftState state = propagator.propagate(date);
-        Vector3D cartesian = state.getPosition(itrf);
-        GeodeticPoint point = earth.transform(cartesian, itrf, date);
+        Vector3D xyz = state.getPosition(itrf);
+        GeodeticPoint point = earth.transform(xyz, itrf, date);
 
         return new SatellitePosition(
                 satellite.getNoradId(),
                 satellite.getName(),
                 when,
-                FastMath.toDegrees(point.getLatitude()),
-                FastMath.toDegrees(point.getLongitude()),
+                Math.toDegrees(point.getLatitude()),
+                Math.toDegrees(point.getLongitude()),
                 point.getAltitude() / 1000.0
         );
     }
@@ -66,42 +65,61 @@ public class PositionCalculator {
         return compact(satellites, when, true);
     }
 
+    // same as positions() but packed into arrays so the json is smaller
     public CompactPositions compact(List<Satellite> satellites, Instant when, boolean parallel) {
         ensureEarth();
         List<Satellite> usable = new ArrayList<>();
-        for (Satellite satellite : satellites) {
+        for (int i = 0; i < satellites.size(); i++) {
+            Satellite satellite = satellites.get(i);
             if (satellite.hasTle()) {
                 usable.add(satellite);
             }
         }
+
         int n = usable.size();
         int[] ids = new int[n];
         float[] latitude = new float[n];
         float[] longitude = new float[n];
         float[] altitudeKm = new float[n];
         String[] group = new String[n];
-        Satellite[] array = usable.toArray(Satellite[]::new);
         AbsoluteDate date = toAbsoluteDate(when);
-        Frame frame = itrf;
-        OneAxisEllipsoid body = earth;
 
-        IntStream range = parallel ? IntStream.range(0, n).parallel() : IntStream.range(0, n);
-        range.forEach(i -> {
-            Satellite satellite = array[i];
-            ids[i] = satellite.getNoradId();
-            group[i] = satellite.getGroup();
-            try {
-                TLEPropagator propagator = propagatorFor(satellite);
-                Vector3D cartesian = propagator.propagate(date).getPosition(frame);
-                GeodeticPoint point = body.transform(cartesian, frame, date);
-                latitude[i] = (float) FastMath.toDegrees(point.getLatitude());
-                longitude[i] = (float) FastMath.toDegrees(point.getLongitude());
-                altitudeKm[i] = (float) (point.getAltitude() / 1000.0);
-            } catch (RuntimeException ignored) {
-                // leave zeros; the globe will skip a bad TLE rather than fail the frame
+        if (parallel) {
+            // googled "java use more cores". I think this splits the loop.
+            IntStream.range(0, n).parallel().forEach(i -> {
+                fillOne(usable.get(i), date, ids, latitude, longitude, altitudeKm, group, i);
+            });
+        } else {
+            for (int i = 0; i < n; i++) {
+                fillOne(usable.get(i), date, ids, latitude, longitude, altitudeKm, group, i);
             }
-        });
+        }
+
         return new CompactPositions(when, n, ids, latitude, longitude, altitudeKm, group);
+    }
+
+    private void fillOne(
+            Satellite satellite,
+            AbsoluteDate date,
+            int[] ids,
+            float[] latitude,
+            float[] longitude,
+            float[] altitudeKm,
+            String[] group,
+            int i
+    ) {
+        ids[i] = satellite.getNoradId();
+        group[i] = satellite.getGroup();
+        try {
+            TLEPropagator propagator = propagatorFor(satellite);
+            Vector3D xyz = propagator.propagate(date).getPosition(itrf);
+            GeodeticPoint point = earth.transform(xyz, itrf, date);
+            latitude[i] = (float) Math.toDegrees(point.getLatitude());
+            longitude[i] = (float) Math.toDegrees(point.getLongitude());
+            altitudeKm[i] = (float) (point.getAltitude() / 1000.0);
+        } catch (RuntimeException e) {
+            // bad tle, leave 0 and the globe skips it
+        }
     }
 
     Frame itrf() {
@@ -126,6 +144,7 @@ public class PositionCalculator {
     private void ensureEarth() {
         OrekitSupport.ensureLoaded();
         if (earth == null) {
+            // copied from the orekit tle tutorial. did not change the frame names.
             itrf = FramesFactory.getITRF(IERSConventions.IERS_2010, true);
             earth = new OneAxisEllipsoid(
                     Constants.WGS84_EARTH_EQUATORIAL_RADIUS,
@@ -138,6 +157,7 @@ public class PositionCalculator {
         return new AbsoluteDate(Date.from(when), TimeScalesFactory.getUTC());
     }
 
+    // orekit wants each TLE line to be 69 characters
     static String padTleLine(String line) {
         String trimmed = line.stripTrailing();
         if (trimmed.length() >= 69) {

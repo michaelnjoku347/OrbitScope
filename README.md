@@ -1,69 +1,70 @@
 # OrbitScope
 
-I wanted to see Starlink from home (Freeport, Bahamas) without staring at a table of numbers. This is that: a Java backend that does the orbit math, and a Cesium page that draws a dot for every satellite.
+Sophomore CS project.
 
-It's a learning project. Some of the early files (`Warmup`, `HelloOrbitScope`) are me figuring out Java. I left them in.
+Before this, the only app I made myself was a calculator in JavaFX. This is a lot bigger. I did **not** write the orbit math. A library called Orekit does that. The 3D earth is another library (Cesium). My code mostly glues them together:
+
+1. download the satellite list (TLE files from CelesTrak)
+2. ask Orekit where each one is
+3. draw a dot on the globe
+
+I live in Freeport, Bahamas, so that's the default location. Click a satellite and it tells you when it goes over home.
 
 ![globe with a bunch of starlink dots](docs/globe.png)
 
-## Running it
+## How to run
 
-Java 21 and Node. Maven wrapper is already in the repo.
+Need Java 21 and Node.
 
 ```bash
-./run.sh api    # backend, http://localhost:8080
-./run.sh web    # globe,   http://localhost:5173
+./run.sh api     # java server, http://localhost:8080
+./run.sh web     # globe page,  http://localhost:5173
 ```
 
-Open the second one. If you get "Failed to fetch" I forgot to start the API again.
+Open the second one. If the page says it can't load, I probably forgot to start the api.
 
-Click a dot for name / altitude. Search box and the Starlink / GPS / ISS buttons filter the cloud. Pass times are from Freeport unless you pass `?lat=&lon=` to the API.
+Click a dot = name + altitude + next pass over Freeport. The search box and the four buttons just hide some of the dots.
 
-Other stuff I used while building:
+## Little programs I wrote while learning
+
+I left these in because that's how I learned Java (same way I learned JavaFX — tiny programs first).
 
 ```bash
-./run.sh hello      # first program
-./run.sh warmup     # arrays / Satellite class
-./run.sh file       # parse data/sample-starlink.tle
-./run.sh fetch      # live names from CelesTrak
-./run.sh iss        # my position vs wheretheiss.at
-./run.sh bench      # timing
+./run.sh hello      # System.out.println
+./run.sh warmup     # arrays + a Satellite class
+./run.sh file       # read data/sample-starlink.tle
+./run.sh fetch      # download live names
+./run.sh iss        # check my ISS numbers vs the internet
 ./run.sh test
 ```
 
-First time you touch orbit math it downloads Orekit's data files into `orekit-data/` (not in git, they're big). If that folder is missing, Orekit just dies with a confusing error.
+First time you run anything with Orekit it downloads a zip of data files into `orekit-data/`. That folder is not in git. If it's missing, Orekit crashes with a weird UTC error. That's normal. Run it again.
 
-## Is the math any good?
+## Did I get the math right?
 
-I pointed Orekit at the ISS and compared it to https://wheretheiss.at at the same timestamp. About **0.2 km** apart. Close enough that I'm not going to argue with it.
+I can't check 10,000 Starlinks by hand. I did check the ISS against https://wheretheiss.at at the same time. About 0.2 km off. Good enough for me.
 
-TLE data comes from CelesTrak. They want a real User-Agent or they hand you an empty file. I found that out the slow way.
+CelesTrak won't send the file unless the User-Agent looks real. Default Java gets an empty page. Took me a while.
 
 ## Speed
 
-I timed "propagate a few thousand satellites across 20 time steps" three ways. No GPU on this machine, so this is CPU only.
+I don't have a graphics card. I timed "move a bunch of satellites forward" three ways:
 
-- Orekit SGP4 on one core: 405 ms
-- same thing on 4 cores: 165 ms (~2.5×)
-- a simplified Kepler version I wrote as arrays: 4 ms (~100× vs sequential SGP4)
+- Orekit, 1 core: 405 ms
+- Orekit, 4 cores: 165 ms
+- my simpler version with arrays: 4 ms (less accurate, ignores drag)
 
-The Kepler one is dumber (ignores drag, etc). It's what I'd try to throw at TornadoVM or CUDA if I had a card. Writeup is in [docs/benchmark.md](docs/benchmark.md).
+The globe still uses Orekit. The array version is just me seeing if it would be faster. Notes: [docs/benchmark.md](docs/benchmark.md)
 
-## Layout
+## Folders
 
 ```
-src/main/java/orbitscope   Java — parsing, Orekit, API
-web/                       Cesium / TypeScript
-data/                      sample TLE files I saved
-NOTES.md                   stuff I don't want to forget
+src/main/java/orbitscope   java
+web/                       the globe page (javascript/typescript)
+data/                      sample satellite files
+NOTES.md                   stuff I keep forgetting
 ```
 
-## Putting it online
+## Website
 
-Haven't actually deployed this yet. Plan:
-
-- API: Docker on Render (`render.yaml`) or Fly
-- frontend: Vercel, set `VITE_API_URL` to the API
-- then link it from njoku.dev
-
-`docker build -t orbitscope .` then `docker run -p 8080:8080 orbitscope` if you want both in one container.
+I have not put this online yet. There's a Dockerfile if I do. Then I'd link it from njoku.dev.

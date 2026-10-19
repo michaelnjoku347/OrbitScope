@@ -1,6 +1,6 @@
 package orbitscope;
 
-/** Name + some orbital stuff. TLE lines are optional until we fetch real data. */
+/** One satellite. Kind of like a model class from the JavaFX calculator, but with orbit fields. */
 public class Satellite {
     private final String name;
     private final int noradId;

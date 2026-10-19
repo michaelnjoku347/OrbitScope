@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CelesTrak gives you name / line1 / line2, over and over.
- * I skip blank lines then take groups of 3.
+ * CelesTrak files are name, line1, line2, repeat.
+ * Skip blank lines, then take groups of 3.
  */
 public class TleParser {
     public static SatelliteCatalog readFile(Path path) throws IOException {

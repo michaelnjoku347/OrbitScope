@@ -56,17 +56,21 @@ case "$command" in
     "$MVN" -q test
     ;;
   *)
-    echo "OrbitScope — whatever I wired up in run.sh"
+    echo "OrbitScope"
     echo
-    echo "  hello       first java program"
+    echo "  if you just want the globe:"
+    echo "    ./run.sh api"
+    echo "    ./run.sh web"
+    echo
+    echo "  hello       first java program (println)"
     echo "  warmup      arrays / Satellite class"
-    echo "  file        parse a saved TLE"
-    echo "  fetch       live names from CelesTrak"
-    echo "  iss         compare ISS to wheretheiss.at"
-    echo "  positions   lat/lon/alt (try --all or --future PT90M)"
+    echo "  file        read a saved TLE"
+    echo "  fetch       download names from CelesTrak"
+    echo "  iss         my ISS numbers vs the internet"
+    echo "  positions   print lat/lon/alt"
     echo "  future      same thing 90 min from now"
-    echo "  api         spring boot on :8080"
-    echo "  web         cesium on :5173"
+    echo "  api         java server on :8080"
+    echo "  web         globe page on :5173"
     echo "  bench       timing"
     echo "  test"
     ;;

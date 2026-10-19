@@ -7,12 +7,12 @@
   </head>
   <body>
     <div id="globe"></div>
-    <header class="hud">
-      <p class="kicker">OrbitScope</p>
+    <div class="hud">
+      <div class="kicker">OrbitScope</div>
       <h1>Starlink from Freeport</h1>
-      <p id="status" class="status">waiting on the api…</p>
-    </header>
-    <aside class="panel">
+      <div id="status" class="status">waiting on the api…</div>
+    </div>
+    <div class="panel">
       <label>
         find one
         <input id="search" type="search" placeholder="starlink-1234 or 25544" />
@@ -29,10 +29,10 @@
         <span><i class="dot iss"></i> iss</span>
         <span><i class="dot ground"></i> home</span>
       </div>
-      <section id="info" class="info">
-        <p>click a dot. pass times are from freeport unless I change the observer.</p>
-      </section>
-    </aside>
+      <div id="info" class="info">
+        <p>click a dot. times are from freeport (that's home).</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
