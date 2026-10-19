@@ -1,7 +1,11 @@
 # Build output
 out/
+target/
 
-# Downloaded full TLE catalogs (keep data/sample-starlink.tle)
+# Orekit configuration data (downloaded on first run)
+orekit-data/
+
+# Downloaded full TLE catalogs (keep data/sample-*.tle)
 data/starlink.tle
 data/starlink.txt
 
@@ -24,6 +28,7 @@ data/starlink.txt
 
 # Package Files #
 *.jar
+!/.mvn/wrapper/maven-wrapper.jar
 *.war
 *.nar
 *.ear

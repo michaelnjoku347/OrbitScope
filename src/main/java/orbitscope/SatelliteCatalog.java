@@ -23,6 +23,15 @@ public class SatelliteCatalog {
         return Collections.unmodifiableList(satellites);
     }
 
+    public Satellite findById(int noradId) {
+        for (Satellite satellite : satellites) {
+            if (satellite.getNoradId() == noradId) {
+                return satellite;
+            }
+        }
+        return null;
+    }
+
     public Satellite findHighest() {
         if (satellites.isEmpty()) {
             return null;

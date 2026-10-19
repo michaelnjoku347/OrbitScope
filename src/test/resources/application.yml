@@ -1,0 +1,3 @@
+orbitscope:
+  fetch-on-startup: false
+  sample-tle: data/sample-iss.tle

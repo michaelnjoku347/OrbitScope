@@ -13,7 +13,12 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - name: Compile and test
-        run: ./run.sh test
-      - name: Parse sample TLE file
-        run: ./run.sh file
+          cache: maven
+      - name: Download Orekit data
+        run: |
+          curl -fsSL -o /tmp/orekit-data-main.zip \
+            "https://gitlab.orekit.org/orekit/orekit-data/-/archive/main/orekit-data-main.zip"
+          unzip -q /tmp/orekit-data-main.zip
+          mv orekit-data-main orekit-data
+      - name: Test
+        run: ./mvnw -B test

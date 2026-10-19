@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+orbitscope:
+  fetch-on-startup: true
+  refresh-ms: 10800000
+  sample-tle: data/sample-iss.tle
