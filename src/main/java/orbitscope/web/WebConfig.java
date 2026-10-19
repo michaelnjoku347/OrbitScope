@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // vite is on :5173 locally
         registry.addMapping("/**").allowedMethods("GET").allowedOriginPatterns("*");
     }
 }

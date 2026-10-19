@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A list of satellites plus the Milestone 1 helper methods:
- * find the highest satellite, and average altitude.
- */
+/** Just a list plus a couple of helpers I wrote while learning ArrayList. */
 public class SatelliteCatalog {
     private final List<Satellite> satellites = new ArrayList<>();
 

@@ -1,43 +1,69 @@
-# OrbitScope notes
+# notes
 
-What I learned while building this, milestone by milestone. Useful later as interview stories.
+oct 2026 — i'm building this as I go, not as a polished thing. dumping stuff here so i remember it for interviews / when i break it later.
 
-## Milestone 0 — a repo that exists
+## getting java to do anything
 
-A public GitHub repo plus an MIT license is not "the project." The first real win was `HelloOrbitScope` printing one line, committed and pushed. After that, every other milestone had a place to land.
+public repo, MIT, then I sat there with an empty folder. `HelloOrbitScope` printing a line felt stupid but at least git had a commit.
 
-## Milestone 1 — objects before orbits
+warmup week was arrays and a Satellite class. i still write the highest/average methods as regular for loops. streams make me lose the plot.
 
-Arrays, `ArrayList`, a `Satellite` class, and two methods (`findHighest`, `averageAltitude`) are the whole Java warm-up. I kept those methods as explicit loops instead of streams so the first weeks stay readable.
+## TLE files are ugly on purpose
 
-## Milestone 2 — TLE is just text
+downloaded starlink.txt from celestrak by hand first. it's just:
 
-A CelesTrak TLE file is groups of three lines: a name, then line 1, then line 2. `BufferedReader` + `split("\\R")` + a `for` loop that steps by 3 is enough to turn the file into objects. Fetching the same text over HTTP with `HttpClient` (and a real `User-Agent`) was the jump from "saved homework file" to "live catalog." CelesTrak will empty-response you if the User-Agent looks like a scraper.
+```
+NAME
+1 ....
+2 ....
+```
 
-## Milestone 3 — Orekit is a data context plus SGP4
+over and over. once you see the pattern it's not scary.
 
-Maven is the build tool: `pom.xml` lists Orekit, `./mvnw` downloads it. Orekit will not propagate a TLE until `orekit-data/` (leap seconds + Earth orientation) is on disk. After that, `TLE` → `TLEPropagator.selectExtrapolator` → ITRF → `GeodeticPoint` is latitude, longitude, altitude.
+then i fetched it instead of using the file. spent an evening getting back an empty response. they block default java user-agents. put the github url in the header and it started working. annoying.
 
-The done-check was the ISS vs https://wheretheiss.at. Same timestamp, two independent SGP4 implementations: **0.2 km** apart.
+## orekit
 
-## Milestone 4 — JSON is the globe's food
+maven is just "list the library in pom.xml and it shows up." that part was fine.
 
-Spring Boot `@RestController` + `@Scheduled` (every 3 hours) is the whole backend shape. `/satellites` lists, `/satellites/{id}/position` is one Orekit call. Opening that URL in a browser is the milestone.
+orekit itself would not start. the error is about data providers / UTC-TAI. you have to download their orekit-data zip (leap seconds, earth orientation, a bunch of other stuff i don't use). i put that behind `OrekitSupport` so it grabs the zip if the folder isn't there.
 
-## Milestone 5 — 10k dots need a tight payload
+once that's loaded: TLE in, lat/lon/alt out. i checked the ISS against wheretheiss.at. 0.2 km. i was expecting worse.
 
-Cesium `PointPrimitiveCollection` can draw thousands of dots. The slow part is JSON. Full position objects were ~1.8 MB; the compact arrays (`ids`, `latitude`, `longitude`, `altitudeKm`, `group`) plus a 1-second cache on the Java side let the globe tick at 1 Hz. Vite proxies `/satellites` to `:8080` in dev so the browser can call a relative URL.
+ITRF vs TEME vs whatever — i copied the frames from their tutorial and did not look back.
 
-## Milestone 6 — filters are names, passes are elevation
+## the api
 
-Tagging `STARLINK` / `GPS` / `ISS` from the TLE name is enough for search chips. "When can I see it from Freeport?" is: pick a `TopocentricFrame` at 26.5333°N, 78.70°W, step Orekit 30 seconds at a time, and group the stretches where elevation ≥ 10°. ISS does that a few times a day.
+spring boot is a lot of annotations but `/satellites` and `/satellites/25544/position` actually did what i wanted on the first try. refresh every 3 hours because celestrak doesn't want you hammering them.
 
-## Milestone 7 — rewrite the heavy loop, then measure
+full position json for 10k sats was like 1.8MB. the globe was choking so i made `/satellites/positions/compact` with parallel float arrays. that one i'd actually show someone.
 
-The heavy loop is "every satellite, many time steps." Sequential Orekit SGP4 on 2048 sats × 20 steps: **405 ms**. The same work on 4 cores: **165 ms (2.45×)**. A Kepler two-body kernel over plain arrays (what a CUDA/TornadoVM thread would run): **4 ms (101× vs sequential SGP4)**.
+## cesium
 
-There is no NVIDIA GPU on this machine, so TornadoVM/CUDA is the next hook, not a fake number. The kernel is already a per-satellite map with no shared mutable state.
+i do not like javascript but typescript + vite was ok.
 
-## Milestone 8 — ship the story, not just the code
+entities = lag. PointPrimitiveCollection = fine. click handling is a little janky, you have to actually hit the dot.
 
-A recruiter needs a link, a GIF of the globe, an architecture picture, setup steps, and the speedup chart. Backend: Docker / Render. Frontend: Vercel with `VITE_API_URL`. README is that packet. This NOTES.md is the interview version.
+the page is just a dark overlay on cesium. search box, four filter buttons, that's it. i was not going to spend a week on css.
+
+freeport is hard-coded as the observer because that's home. "when can i see it" is just: is the elevation > 10 degrees, sampled every 30 seconds. not fancy. ISS pops up a few times a day.
+
+## "gpu"
+
+i do not have an nvidia card here.
+
+tore through tornadoVM docs. it's a java thing that compiles annotated loops to opencl/ptx. you don't rewrite in cuda, you write a tight loop over arrays and tag it `@Parallel`. that's why KeplerBatch exists — orekit objects can't go on a gpu.
+
+so the benchmark is:
+1. orekit sequential
+2. orekit parallel streams (2.5x on 4 cores)
+3. kepler arrays (100x, but it's a simpler model)
+
+if i get on a machine with a gpu i'd plug tornadoVM into KeplerBatch. until then i'm not going to fake a gpu number.
+
+## still todo
+
+- actually deploy (render + vercel) and put it on njoku.dev
+- gif of the globe rotating, readme has a screenshot for now
+- tornadoVM for real
+- click-to-select is easy to miss on starlink because the dots are tiny

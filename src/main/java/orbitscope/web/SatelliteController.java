@@ -33,6 +33,7 @@ public class SatelliteController {
     public Map<String, Object> index() {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("name", "OrbitScope");
+        body.put("note", "java backend for the globe. observer defaults to freeport.");
         body.put("satelliteCount", catalog.catalog().size());
         body.put("updatedAt", catalog.updatedAt());
         body.put("observer", Observer.FREEPORT.name());

@@ -21,10 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-/**
- * Milestone 3: use Orekit's SGP4/SDP4 propagator to turn TLE lines into
- * latitude, longitude, and altitude at a chosen time.
- */
+/** TLE in, lat/lon/alt out. This is the Orekit wrapper I actually understand. */
 public class PositionCalculator {
     private Frame itrf;
     private OneAxisEllipsoid earth;

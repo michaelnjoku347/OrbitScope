@@ -1,11 +1,10 @@
-# Build output
 out/
 target/
 
-# Orekit configuration data (downloaded on first run)
+# orekit dumps leap seconds / earth orientation here (big, not mine)
 orekit-data/
 
-# Downloaded full TLE catalogs (keep data/sample-*.tle)
+# full celestrak dumps. keep the tiny samples in data/
 data/starlink.tle
 data/starlink.txt
 

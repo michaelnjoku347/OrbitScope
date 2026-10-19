@@ -56,19 +56,18 @@ case "$command" in
     "$MVN" -q test
     ;;
   *)
-    echo "OrbitScope"
+    echo "OrbitScope — whatever I wired up in run.sh"
     echo
-    echo "Usage: ./run.sh <command>"
-    echo "  hello       Milestone 0 — print a line"
-    echo "  warmup      Milestone 1 — arrays, Satellite class, list methods"
-    echo "  file        Milestone 2 — parse a saved TLE file"
-    echo "  fetch       Milestone 2 — download live Starlink TLEs from CelesTrak"
-    echo "  iss         Milestone 3 — ISS lat/lon/alt vs wheretheiss.at"
-    echo "  positions   Milestone 3 — compute positions (add --all or --future PT90M)"
-    echo "  future      Milestone 3 — ISS and a few Starlinks 90 minutes from now"
-    echo "  api         Milestone 4 — start the Spring Boot JSON API on :8080"
-    echo "  web         Milestone 5 — Cesium globe at http://localhost:5173"
-    echo "  bench       Milestone 7 — CPU vs Kepler-kernel timing"
-    echo "  test        run unit tests"
+    echo "  hello       first java program"
+    echo "  warmup      arrays / Satellite class"
+    echo "  file        parse a saved TLE"
+    echo "  fetch       live names from CelesTrak"
+    echo "  iss         compare ISS to wheretheiss.at"
+    echo "  positions   lat/lon/alt (try --all or --future PT90M)"
+    echo "  future      same thing 90 min from now"
+    echo "  api         spring boot on :8080"
+    echo "  web         cesium on :5173"
+    echo "  bench       timing"
+    echo "  test"
     ;;
 esac

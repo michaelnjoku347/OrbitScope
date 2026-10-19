@@ -2,7 +2,7 @@ package orbitscope.orbit;
 
 import java.time.Instant;
 
-/** Tight JSON payload so the globe can refresh thousands of dots every second. */
+/** The skinny JSON the globe polls every second. */
 public record CompactPositions(
         Instant time,
         int count,

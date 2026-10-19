@@ -28,7 +28,7 @@ const API = import.meta.env.VITE_API_URL ?? "";
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(`${API}${path}`);
   if (!response.ok) {
-    throw new Error(`${path} failed: ${response.status}`);
+    throw new Error(`couldn't load ${path} (${response.status})`);
   }
   return response.json() as Promise<T>;
 }

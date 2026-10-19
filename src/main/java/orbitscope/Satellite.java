@@ -1,11 +1,6 @@
 package orbitscope;
 
-/**
- * One satellite OrbitScope knows about.
- *
- * Milestone 1 uses name, altitude, and speed.
- * Milestone 2 also keeps the two TLE lines from CelesTrak when we have them.
- */
+/** Name + some orbital stuff. TLE lines are optional until we fetch real data. */
 public class Satellite {
     private final String name;
     private final int noradId;
@@ -32,7 +27,6 @@ public class Satellite {
         return new Satellite(name.trim(), parseNoradId(line1), 0.0, 0.0, line1, line2);
     }
 
-    /** Starlink, GPS, ISS, or OTHER — used by the globe filters. */
     public String getGroup() {
         String upper = name.toUpperCase();
         if (upper.contains("ISS") || upper.contains("ZARYA")) {

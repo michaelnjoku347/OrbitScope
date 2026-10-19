@@ -8,14 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Milestone 2: split TLE text into groups of 3 lines and turn each group
- * into a Satellite.
- *
- * A TLE (two-line element set) from CelesTrak looks like:
- *
- *   STARLINK-1008
- *   1 44714U 19074B   ...
- *   2 44714  53.1443 ...
+ * CelesTrak gives you name / line1 / line2, over and over.
+ * I skip blank lines then take groups of 3.
  */
 public class TleParser {
     public static SatelliteCatalog readFile(Path path) throws IOException {

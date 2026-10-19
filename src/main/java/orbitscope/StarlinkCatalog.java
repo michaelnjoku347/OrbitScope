@@ -2,13 +2,7 @@ package orbitscope;
 
 import java.nio.file.Path;
 
-/**
- * Milestone 2: print the names and count of Starlink satellites
- * from a saved TLE file or from a live CelesTrak download.
- *
- *   java orbitscope.StarlinkCatalog --file data/sample-starlink.tle
- *   java orbitscope.StarlinkCatalog --fetch
- */
+/** Print names + how many we got. `--file` or `--fetch`. */
 public class StarlinkCatalog {
     public static void main(String[] args) throws Exception {
         SatelliteCatalog catalog;
@@ -35,6 +29,6 @@ public class StarlinkCatalog {
             System.out.println(satellite.getName());
         }
         System.out.println();
-        System.out.println("Live Starlink satellites: " + catalog.size());
+        System.out.println("count: " + catalog.size());
     }
 }

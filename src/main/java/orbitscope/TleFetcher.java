@@ -8,8 +8,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * Milestone 2: fetch live TLE data from CelesTrak over HTTP
- * instead of reading a file you downloaded by hand.
+ * Live TLEs from CelesTrak. They ignore you unless User-Agent looks like a real app.
  */
 public class TleFetcher {
     public static final String STARLINK_TLE_URL =

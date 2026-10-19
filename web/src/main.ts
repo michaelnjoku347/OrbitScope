@@ -30,22 +30,22 @@ async function showInfo(id: number, lat: number, lon: number, alt: number) {
       <dt>Lat / Lon</dt><dd>${lat.toFixed(2)}°, ${lon.toFixed(2)}°</dd>
       <dt>Altitude</dt><dd>${alt.toFixed(1)} km</dd>
     </dl>
-    <p class="pass">Loading Freeport passes…</p>`;
+    <p class="pass">checking passes from home…</p>`;
   try {
     const result = await fetchPasses(id);
     const next = result.passes[0];
     const passHtml = next
-      ? `<div class="pass"><strong>Next from ${result.observer.name}</strong><br>
+      ? `<div class="pass"><strong>next over ${result.observer.name}</strong><br>
          ${formatTime(next.start)} → ${formatTime(next.end)}<br>
-         max elevation ${next.maxElevationDeg.toFixed(0)}°</div>`
-      : `<div class="pass">No pass above 10° from ${result.observer.name} in the next 24 hours.</div>`;
+         max el ${next.maxElevationDeg.toFixed(0)}°</div>`
+      : `<div class="pass">nothing above 10° from ${result.observer.name} in the next day</div>`;
     const extra = result.passes
       .slice(1, 4)
       .map((pass) => `<div class="pass">${formatTime(pass.peak)} · ${pass.maxElevationDeg.toFixed(0)}°</div>`)
       .join("");
     infoEl.insertAdjacentHTML("beforeend", passHtml + extra);
     const loading = infoEl.querySelector(".pass");
-    if (loading && loading.textContent?.includes("Loading")) {
+    if (loading && loading.textContent?.includes("checking passes")) {
       loading.remove();
     }
   } catch (error) {
@@ -86,7 +86,7 @@ async function start() {
     try {
       latest = await fetchCompact();
       const visible = globe.apply(latest, filter, query, names);
-      statusEl.textContent = `${visible.toLocaleString()} dots · ${new Date(latest.time).toLocaleTimeString()}`;
+      statusEl.textContent = `${visible.toLocaleString()} sats  ${new Date(latest.time).toLocaleTimeString()}`;
     } catch (error) {
       statusEl.textContent = (error as Error).message;
     }

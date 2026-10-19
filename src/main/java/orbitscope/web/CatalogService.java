@@ -71,9 +71,9 @@ public class CatalogService {
     }
 
     public synchronized void refreshFromNetwork() throws Exception {
-        log.info("Refreshing TLE catalog from CelesTrak");
+        log.info("grabbing new TLEs from CelesTrak");
         replace(TleParser.parse(fetcher.fetchCatalog()));
-        log.info("Catalog now has {} satellites", catalog.size());
+        log.info("catalog now has {} satellites", catalog.size());
     }
 
     public synchronized void loadSample() throws Exception {

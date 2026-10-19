@@ -54,8 +54,8 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
       outlineWidth: 1,
     },
     label: {
-      text: "Freeport",
-      font: "12px IBM Plex Sans, sans-serif",
+      text: "home",
+      font: "12px sans-serif",
       fillColor: Cesium.Color.WHITE,
       pixelOffset: new Cesium.Cartesian2(18, -14),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -64,6 +64,7 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
     },
   });
 
+  // entities were laggy with ~10k sats. this collection is fine.
   const points = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
 
   const apply = (

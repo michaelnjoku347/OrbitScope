@@ -12,12 +12,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * GPU-shaped rewrite of the heavy loop: plain float/double arrays and a
- * two-body (Kepler) step instead of Orekit SGP4. Same inputs, much cheaper
- * math, and the inner loop is a data-parallel map over satellites.
- *
- * This is the CPU stand-in for a TornadoVM / CUDA kernel when no NVIDIA GPU
- * is attached. The loop body is the same work a GPU thread would do.
+ * Cheap Kepler step over arrays. Not as accurate as Orekit.
+ * Wrote it this way so I can try TornadoVM later (needs a GPU I don't have).
  */
 public class KeplerBatch {
     private static final double MU = 3.986004418e14;

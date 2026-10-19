@@ -10,10 +10,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Milestone 7: time the heavy loop on one core, then across every core, then
- * on the simplified Kepler kernel that a GPU would run.
- */
+/** Times Orekit vs the Kepler array version. Prints a table and writes docs/. */
 public class Benchmark {
     public static void main(String[] args) throws Exception {
         OrekitSupport.ensureLoaded();
@@ -103,29 +100,33 @@ public class Benchmark {
         }
 
         String markdown() {
+            int cores = Runtime.getRuntime().availableProcessors();
             return """
-                    # OrbitScope benchmark
+                    # timing notes
 
-                    Workload: **%d** satellites × **%d** time steps (30 s apart) on **%d** CPU cores.
-                    No NVIDIA GPU was attached, so the "GPU-shaped" path is a Kepler two-body kernel
-                    over plain arrays, run with Java parallel streams (the same map a CUDA/TornadoVM
-                    kernel would launch).
+                    I ran this on a %d-core box with no GPU.
 
-                    | Path | Time | Speedup vs Orekit sequential |
+                    Work: %d satellites × %d steps, 30 seconds apart. (I duplicated the sample TLEs so the loop was big enough to measure. Not scientifically perfect.)
+
+                    | what | ms | vs orekit 1-core |
                     | --- | ---: | ---: |
-                    | Orekit SGP4, 1 core | %d ms | 1.00× |
-                    | Orekit SGP4, all cores | %d ms | %.2f× |
-                    | Kepler arrays, 1 core | %d ms | %.2f× |
-                    | Kepler arrays, all cores | %d ms | %.2f× |
+                    | Orekit SGP4, 1 core | %d | 1× |
+                    | Orekit SGP4, %d cores | %d | %.2f× |
+                    | my Kepler thing, 1 core | %d | %.0f× |
+                    | Kepler, %d cores | %d | %.0f× |
 
-                    The Kepler rewrite is the heavy-loop replacement. Hook it to TornadoVM or CUDA/JNI
-                    on a machine with a GPU to go further; the kernel is already a per-satellite map
-                    with no shared mutable state.
+                    Kepler is cheating a bit — no drag, circular-ish, I convert ECI with a GMST hack. It's the version I'd try on a GPU (TornadoVM / CUDA) because it's just arrays.
+
+                    Orekit is the one the globe actually uses.
+
+                    Re-run: `./run.sh bench`
                     """.formatted(
-                    satellites, steps, Runtime.getRuntime().availableProcessors(),
-                    orekitSeqMs, orekitParMs, orekitSpeedup(),
+                    cores,
+                    satellites, steps,
+                    orekitSeqMs,
+                    cores, orekitParMs, orekitSpeedup(),
                     keplerSeqMs, (double) orekitSeqMs / Math.max(1, keplerSeqMs),
-                    keplerParMs, keplerVsOrekit());
+                    cores, keplerParMs, keplerVsOrekit());
         }
 
         String svg() {
@@ -133,8 +134,8 @@ public class Benchmark {
             return """
                     <svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
                       <rect width="720" height="280" fill="#070b14"/>
-                      <text x="24" y="36" fill="#e8eef7" font-family="ui-sans-serif, system-ui" font-size="18">OrbitScope propagation benchmark</text>
-                      <text x="24" y="58" fill="#8b9bb4" font-family="ui-sans-serif, system-ui" font-size="12">%d sats × %d steps · %d cores</text>
+                      <text x="24" y="36" fill="#e8eef7" font-family="system-ui, sans-serif" font-size="18">timing (ms)</text>
+                      <text x="24" y="58" fill="#8b9bb4" font-family="system-ui, sans-serif" font-size="12">%d sats × %d steps · %d cores · no gpu on this box</text>
                       %s
                       %s
                       %s

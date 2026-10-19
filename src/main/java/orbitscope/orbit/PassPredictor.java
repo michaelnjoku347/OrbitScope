@@ -15,10 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Samples elevation from a ground site and groups the times a satellite is
- * above the horizon into visible passes.
- */
+/** Walk forward in 30s steps and remember when a sat is above 10° elevation. */
 public class PassPredictor {
     private final PositionCalculator calculator;
 
