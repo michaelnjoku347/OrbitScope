@@ -61,10 +61,10 @@ class SatelliteApiTest {
     }
 
     @Test
-    void issPassesFromFreeport() throws Exception {
+    void issPassesFromNewYork() throws Exception {
         mvc.perform(get("/satellites/25544/passes").param("hours", "24"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.observer.name").value("Freeport, Bahamas"))
+                .andExpect(jsonPath("$.observer.name").value("New York"))
                 .andExpect(jsonPath("$.passes").isArray());
     }
 }

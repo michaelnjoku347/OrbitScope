@@ -35,7 +35,7 @@ public class SatelliteController {
         body.put("name", "OrbitScope");
         body.put("satelliteCount", catalog.catalog().size());
         body.put("updatedAt", catalog.updatedAt());
-        body.put("observer", Observer.FREEPORT.name());
+        body.put("observer", Observer.NEW_YORK.name());
         body.put("endpoints", List.of(
                 "/satellites",
                 "/satellites/{id}/position",
@@ -82,7 +82,7 @@ public class SatelliteController {
     ) {
         Observer observer = (lat != null && lon != null)
                 ? new Observer("Custom", lat, lon, 10.0)
-                : Observer.FREEPORT;
+                : Observer.NEW_YORK;
         Satellite satellite = catalog.require(id);
         List<Pass> predicted = passes.predict(
                 satellite,

@@ -34,7 +34,7 @@ async function showInfo(id: number, lat: number, lon: number, alt: number) {
     "<div>group: " + group + "</div>" +
     "<div>lat/lon: " + lat.toFixed(2) + ", " + lon.toFixed(2) + "</div>" +
     "<div>alt: " + alt.toFixed(1) + " km</div>" +
-    "<p class=\"pass\">checking when it flies over home…</p>";
+    "<p class=\"pass\">checking passes…</p>";
 
   try {
     const result = await fetchPasses(id);
