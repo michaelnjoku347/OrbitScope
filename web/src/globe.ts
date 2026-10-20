@@ -45,9 +45,9 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
   viewer.clock.shouldAnimate = false;
 
   viewer.entities.add({
-    id: "freeport",
-    name: "Freeport, Bahamas",
-    position: Cesium.Cartesian3.fromDegrees(-78.7, 26.5333),
+    id: "newyork",
+    name: "New York",
+    position: Cesium.Cartesian3.fromDegrees(-75.5, 43.0),
     point: {
       pixelSize: 11,
       color: Cesium.Color.fromCssColorString("#ff7a59"),
@@ -55,7 +55,7 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
       outlineWidth: 1,
     },
     label: {
-      text: "home",
+      text: "NY",
       font: "12px sans-serif",
       fillColor: Cesium.Color.WHITE,
       pixelOffset: new Cesium.Cartesian2(18, -14),
@@ -119,14 +119,14 @@ export async function createGlobe(container: string): Promise<GlobeHandle> {
     if (typeof value === "number") {
       return value;
     }
-    if (value && typeof value.id === "string" && value.id !== "freeport") {
+    if (value && typeof value.id === "string" && value.id !== "newyork") {
       return Number(value.id);
     }
     return undefined;
   };
 
   viewer.camera.setView({
-    destination: Cesium.Cartesian3.fromDegrees(-78.7, 18.0, 18_000_000),
+    destination: Cesium.Cartesian3.fromDegrees(-75.5, 32.0, 18_000_000),
   });
 
   return { viewer, apply, pickId };

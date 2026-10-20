@@ -1,10 +1,10 @@
 package orbitscope.orbit;
 
 public record Observer(String name, double latitudeDeg, double longitudeDeg, double altitudeM) {
-    public static final Observer FREEPORT = new Observer(
-            "Freeport, Bahamas",
-            26.5333,
-            -78.7000,
+    public static final Observer NEW_YORK = new Observer(
+            "New York",
+            43.0,
+            -75.5,
             10.0
     );
 }

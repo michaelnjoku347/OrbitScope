@@ -1,6 +1,6 @@
 # OrbitScope
 
-Starlink, GPS, and the ISS on a 3D globe. Java/Orekit computes positions, Cesium draws them. Default location is Freeport, Bahamas.
+Starlink, GPS, and the ISS on a 3D globe. Java/Orekit computes positions, Cesium draws them. Default observer is New York.
 
 ![globe](docs/globe.png)
 
@@ -13,7 +13,7 @@ Java 21 and Node.
 ./run.sh web    # http://localhost:5173
 ```
 
-Click a satellite for name, altitude, and the next pass over Freeport.
+Click a satellite for name, altitude, and the next pass over New York.
 
 Orekit downloads `orekit-data/` on first run (not in git). CelesTrak sends an empty file if the User-Agent is missing.
 

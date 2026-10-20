@@ -12,6 +12,6 @@ TLE refresh is 3 hours.
 
 Cesium `Entity` collection lagged at ~10k points. Globe uses `PointPrimitiveCollection`. Dots are easy to miss when clicking.
 
-Passes: elevation >= 10°, sampled every 30s. Observer is Freeport.
+Passes: elevation >= 10°, sampled every 30s. Observer is New York.
 
 `KeplerBatch` is only for the benchmark. No GPU here, so no TornadoVM numbers.
