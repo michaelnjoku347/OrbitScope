@@ -1,0 +1,16 @@
+[package]
+name = "cubelight"
+version = "0.1.0"
+edition = "2021"
+description = "A small WASM ray tracer: three cubes, shadows, and switchable shading systems."
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+debug = false

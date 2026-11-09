@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cubelight</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <div>
+          <h1>Cubelight</h1>
+          <p>A ray tracer in WASM. Three cubes, a lamp, and the switches for how the picture is made.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" id="pause" class="ghost">Pause</button>
+        <button type="button" id="png">Save PNG</button>
+        <button type="button" id="ppm" class="ghost">Save PPM</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="stage">
+        <div class="rebate">
+          <span id="rebate-system">Whitted</span>
+          <span id="rebate-res">640×360</span>
+          <span id="rebate-spp">0 spp</span>
+        </div>
+        <canvas id="view" width="640" height="360">Cubelight render</canvas>
+        <div class="meter" aria-hidden="true"><div id="bar"></div></div>
+        <div class="stage-row">
+          <p id="stats">Starting the tracer…</p>
+          <label class="check"><input type="checkbox" id="orbit"> Auto orbit</label>
+        </div>
+        <p class="hint">Drag to orbit. Shift-drag moves the lamp. Scroll zooms. Double-click resets the camera.</p>
+
+        <div class="compare">
+          <label class="check"><input type="checkbox" id="compare"> Compare formats</label>
+          <div id="compare-controls" class="compare-controls" hidden>
+            <label>Right side
+              <select id="compare-format"></select>
+            </label>
+            <label class="wipe">Wipe
+              <input id="wipe" type="range" min="0" max="100" value="50">
+            </label>
+          </div>
+        </div>
+
+        <ul class="legend" id="legend"></ul>
+      </section>
+
+      <aside class="desk" id="desk">
+        <section>
+          <h2>System</h2>
+          <div class="choices" id="systems"></div>
+          <p class="blurb" id="system-blurb"></p>
+        </section>
+
+        <section>
+          <h2>Format</h2>
+          <div class="choices" id="formats"></div>
+          <p class="blurb" id="format-blurb"></p>
+          <div class="grid2">
+            <label>Exposure <b data-for="exposure">1.15</b>
+              <input id="exposure" type="range" min="0.3" max="3" step="0.01" value="1.15">
+            </label>
+            <label>Vignette <b data-for="vignette">0.32</b>
+              <input id="vignette" type="range" min="0" max="1" step="0.01" value="0.32">
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>Quality</h2>
+          <label>Resolution
+            <select id="resolution">
+              <option value="320x180">320×180 draft</option>
+              <option value="480x270">480×270</option>
+              <option value="640x360" selected>640×360</option>
+              <option value="800x450">800×450</option>
+              <option value="960x540">960×540 fine</option>
+            </select>
+          </label>
+          <div class="grid2">
+            <label>Samples / frame <b data-for="per-frame">1</b>
+              <input id="per-frame" type="range" min="1" max="4" step="1" value="1">
+            </label>
+            <label>Settle at <b data-for="max-spp">24</b>
+              <input id="max-spp" type="range" min="1" max="96" step="1" value="24">
+            </label>
+            <label>Bounces <b data-for="bounces">3</b>
+              <input id="bounces" type="range" min="1" max="6" step="1" value="3">
+            </label>
+            <label>Noise seed <b data-for="seed">1</b>
+              <input id="seed" type="range" min="1" max="99" step="1" value="1">
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>Lamp and sky</h2>
+          <label>Sky
+            <select id="sky">
+              <option value="0">Day</option>
+              <option value="1">Dusk</option>
+              <option value="2">Night</option>
+              <option value="3">Void</option>
+            </select>
+          </label>
+          <div class="grid2">
+            <label>Angle <b data-for="light-angle">58</b>
+              <input id="light-angle" type="range" min="-180" max="180" step="1" value="58">
+            </label>
+            <label>Distance <b data-for="light-orbit">4.1</b>
+              <input id="light-orbit" type="range" min="1" max="9" step="0.05" value="4.1">
+            </label>
+            <label>Height <b data-for="light-height">5.1</b>
+              <input id="light-height" type="range" min="0.6" max="10" step="0.05" value="5.1">
+            </label>
+            <label>Size <b data-for="light-size">0.42</b>
+              <input id="light-size" type="range" min="0.08" max="1.4" step="0.01" value="0.42">
+            </label>
+            <label>Power <b data-for="light-power">48</b>
+              <input id="light-power" type="range" min="0" max="120" step="1" value="48">
+            </label>
+            <label>Color
+              <input id="light-color" type="color" value="#ffecd6">
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <h2>Cubes</h2>
+            <button type="button" id="shuffle" class="ghost tiny">Shuffle</button>
+          </div>
+          <div id="cubes"></div>
+        </section>
+
+        <section>
+          <h2>Floor</h2>
+          <div class="grid2">
+            <label>Color
+              <input id="floor-color" type="color" value="#b0a494">
+            </label>
+            <label class="check inline"><input id="checker" type="checkbox" checked> Checker</label>
+            <label>Tile size <b data-for="checker-scale">0.62</b>
+              <input id="checker-scale" type="range" min="0.15" max="2" step="0.01" value="0.62">
+            </label>
+            <label>Roughness <b data-for="floor-rough">0.62</b>
+              <input id="floor-rough" type="range" min="0" max="1" step="0.01" value="0.62">
+            </label>
+            <label>Metal <b data-for="floor-metal">0</b>
+              <input id="floor-metal" type="range" min="0" max="1" step="0.01" value="0">
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>Camera</h2>
+          <div class="grid2">
+            <label>Yaw <b data-for="yaw">-38</b>
+              <input id="yaw" type="range" min="-180" max="180" step="1" value="-38">
+            </label>
+            <label>Pitch <b data-for="pitch">24</b>
+              <input id="pitch" type="range" min="8" max="75" step="1" value="24">
+            </label>
+            <label>Distance <b data-for="dist">7.6</b>
+              <input id="dist" type="range" min="3" max="16" step="0.05" value="7.6">
+            </label>
+            <label>Field of view <b data-for="fov">36</b>
+              <input id="fov" type="range" min="20" max="70" step="1" value="36">
+            </label>
+          </div>
+          <button type="button" id="reset-cam" class="ghost">Reset camera</button>
+        </section>
+
+        <section>
+          <h2>Looks</h2>
+          <div class="presets">
+            <button type="button" data-preset="studio">Studio</button>
+            <button type="button" data-preset="dusk">Dusk</button>
+            <button type="button" data-preset="neon">Neon</button>
+            <button type="button" data-preset="clay">Clay</button>
+          </div>
+        </section>
+
+        <p class="keys">Keys: 1–7 systems, F format, Space pause, [ ] exposure. The Rust source is <code>tracer/src/lib.rs</code>. Rebuild with <code>./build.sh</code>, then refresh.</p>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
